@@ -64,7 +64,7 @@ Play in a normal text channel. ✅ = what should happen.
 | 13 | Click a button on an **older** message | Nothing on older frozen messages (they have no buttons). Double-clicking a live button quickly: the second click says "That moment has passed" |
 | 14 | Stop the bot (Ctrl+C), start it again, then pick from the menu / click a button | Still works (buttons survive restarts) |
 | 15 | **Back to the desk → Return to the foyer → Open the green door** | ➖ Brass Key, *Behind the Green Door* in green, footer "The End", no buttons |
-| 16 | `/start`, then `/quit` in the new thread | "You leave the inn…" and the thread is archived and locked |
+| 16 | `/start`, then `/quit` in the new thread | "You leave the inn…" with a link back to the channel you started in, and the thread is archived and locked. Typing `/start` inside a thread also links back to that channel |
 | 17 | `/start`, then `/quit` from the **main channel** | Same, and the thread is closed too |
 
 **Optional, needs a second account in the server:** as the second account, click

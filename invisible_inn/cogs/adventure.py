@@ -44,8 +44,11 @@ class Adventure(commands.Cog):
 
         channel = interaction.channel
         if not isinstance(channel, discord.TextChannel):
+            # From inside a game thread, point the player back to the channel it belongs to.
+            parent_id = getattr(channel, "parent_id", None) if isinstance(channel, discord.Thread) else None
+            where = f"<#{parent_id}>" if parent_id else "a regular text channel"
             await interaction.response.send_message(
-                "Use `/start` in a regular text channel — I'll open a private thread for your game there.",
+                f"Use `/start` in {where} — I'll open a private thread for your game there.",
                 ephemeral=True,
             )
             return
@@ -135,7 +138,8 @@ class Adventure(commands.Cog):
             return
         async with self._lock(session.id):
             await self.bot.storage.set_status(session.id, ABANDONED)
-        await interaction.response.send_message("You leave the inn. This adventure has ended — use `/start` "
+        where = f" in <#{session.channel_id}>" if session.channel_id else ""
+        await interaction.response.send_message(f"You leave the inn. This adventure has ended — use `/start`{where} "
                                                 "to begin a new one.")
         await self._close_thread(session.thread_id)
 

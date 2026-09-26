@@ -114,6 +114,23 @@ class AdventureFlowTests(unittest.IsolatedAsyncioTestCase):
         self.bot.fetch_channel.assert_awaited_once_with(3)
         thread.edit.assert_awaited_once_with(archived=True, locked=True)
 
+    async def test_quit_in_thread_points_back_to_channel(self):
+        i = fake_interaction(100)
+        i.guild_id = 1
+        i.channel = MagicMock(spec=discord.Thread)
+        i.channel.id = 3
+        self.cog._close_thread = AsyncMock()
+        await self.cog.quit.callback(self.cog, i)
+        self.assertIn("use `/start` in <#2>", i.response.send_message.call_args.args[0])
+        self.cog._close_thread.assert_awaited_once_with(3)
+
+    async def test_start_in_thread_points_back_to_channel(self):
+        i = fake_interaction(100)
+        i.channel = MagicMock(spec=discord.Thread)
+        i.channel.parent_id = 2
+        await self.cog.start.callback(self.cog, i)
+        self.assertIn("Use `/start` in <#2>", i.response.send_message.call_args.args[0])
+
     async def test_button_custom_id_round_trips(self):
         from invisible_inn.ui import ChoiceButton
         button = ChoiceButton(self.session.id, 4, "take_key", label="Take")
