@@ -62,6 +62,9 @@ python -m invisible_inn.content.validate      # check story files for mistakes
 
 Both run automatically on every pull request.
 
+Working with Claude Code? It reads [CLAUDE.md](CLAUDE.md) automatically. That
+file covers the project's decisions, conventions and roadmap.
+
 ```
 invisible_inn/
   __main__.py        entry point (python -m invisible_inn)
