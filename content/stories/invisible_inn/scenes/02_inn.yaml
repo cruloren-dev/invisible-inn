@@ -50,9 +50,54 @@ innkeeper:
       result_text: |
         The spectacles tilt approvingly. "Ah, someone who reads the sign!
         Take this. You'll want it where you're going."
+    - id: ask_drinks
+      label: Ask what's on tap
+      goto: bar
     - id: back_to_foyer
       label: Return to the foyer
       goto: foyer
+
+# More than five choices, so this scene shows a dropdown menu instead of buttons.
+bar:
+  title: The Bar
+  text: |
+    A chalkboard behind the bar lists the drinks in handwriting that is
+    still being written. The innkeeper's spectacles wait patiently.
+  choices:
+    - id: cider
+      label: Cloudy cider
+      description: Sweet, and faintly glowing
+      goto: bar
+      result_text: The cider tastes of autumn. Your hand holding the glass flickers.
+    - id: ale
+      label: Fog ale
+      description: The house special
+      goto: bar
+      result_text: The ale is cold and thick as the fog outside.
+    - id: tea
+      label: Nettle tea
+      description: For guests who plan to stay awake
+      goto: bar
+      result_text: The tea is scalding. You feel very awake, and very visible.
+    - id: water
+      label: Just water, please
+      goto: bar
+      result_text: The glass arrives already empty, and yet you feel refreshed.
+    - id: mystery
+      label: Whatever the fiddler is having
+      description: The innkeeper raises an eyebrow you can't see
+      goto: bar
+      result_text: Something fizzes, hums a few bars of the fiddle tune, and is gone.
+    - id: lantern_oil
+      label: A thimble of lantern oil
+      description: Only offered to guests carrying a lantern
+      goto: bar
+      requires:
+        items: [lantern]         # hidden until you have the lantern (menus can't grey out)
+      result_text: The innkeeper tops up your lantern instead. "Can't have you drinking that."
+    - id: leave_bar
+      label: Back to the desk
+      goto: innkeeper
 
 green_room:
   title: Behind the Green Door

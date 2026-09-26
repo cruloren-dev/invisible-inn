@@ -117,8 +117,8 @@ engine, SQLite storage, `/start` `/inventory` `/quit` `/help`, buttons and
 dropdowns that survive restarts, a sample story, docs, tests and CI.
 
 **Next, roughly in order:**
-1. **Live smoke test** against the test server. Everything so far is tested only
-   with simulated Discord objects.
+1. **Live smoke test** against the test server, following `docs/smoke-test.md`.
+   Everything so far is tested only with simulated Discord objects.
 2. **Story and game-mechanics design** with the owner. Writers replace the sample
    story. This may call for new content features (e.g. conditional text within a
    scene, counters/stats, random outcomes). Design these with the owner before

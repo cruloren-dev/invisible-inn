@@ -7,7 +7,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from .config import Config
+from .config import Config, ConfigError
 from .content import ContentError, Story, load_all
 from .storage import Storage
 from .ui import ChoiceButton, ChoiceSelect
@@ -47,7 +47,14 @@ class InnBot(commands.Bot):
             # Registering to one server makes command changes show up instantly.
             guild = discord.Object(id=self.config.dev_guild_id)
             self.tree.copy_global_to(guild=guild)
-            synced = await self.tree.sync(guild=guild)
+            try:
+                synced = await self.tree.sync(guild=guild)
+            except discord.Forbidden:
+                raise ConfigError(
+                    f"Discord refused to add slash commands to server {self.config.dev_guild_id}. "
+                    "Check that DEV_GUILD_ID is your test server's ID and that the bot was invited "
+                    "with both the 'bot' and 'applications.commands' scopes."
+                ) from None
             log.info("Synced %d commands to dev server %s", len(synced), self.config.dev_guild_id)
         else:
             synced = await self.tree.sync()
