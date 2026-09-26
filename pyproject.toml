@@ -1,0 +1,8 @@
+[project]
+name = "invisible-inn"
+version = "0.1.0"
+description = "A Discord text-adventure bot."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

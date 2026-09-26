@@ -1,0 +1,13 @@
+# Story settings. See docs/content-guide.md for every option.
+#
+# NOTE: this is SAMPLE content that demonstrates the file format.
+# Writers should replace it with the real story.
+
+title: The Invisible Inn
+description: A short sample adventure. Find the inn that nobody can see.
+start_scene: arrival
+
+# Group play isn't built yet; version 1 is solo. These are read and validated
+# now so stories can declare their intended party size ahead of time.
+min_players: 1
+max_players: 1

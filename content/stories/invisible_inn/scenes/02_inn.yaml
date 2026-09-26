@@ -1,0 +1,68 @@
+foyer:
+  title: The Foyer
+  text: |
+    The moment you cross the threshold, the inn appears around you all at
+    once: a crackling hearth, a front desk polished to a mirror shine, and
+    a staircase that seems to go up further than the building could.
+
+    A brass key hangs on a hook behind the desk. Beside the stairs is a
+    green door with a keyhole.
+  choices:
+    - id: ring_bell
+      label: Ring the bell on the desk
+      goto: innkeeper
+    - id: take_key
+      label: Take the brass key
+      goto: foyer
+      gives: [brass_key]
+      result_text: You lift the key from its hook. Nobody stops you.
+      requires:
+        not_items: [brass_key]
+    - id: green_door
+      label: Open the green door
+      goto: green_room
+      takes: [brass_key]
+      result_text: The key turns with a satisfied click and stays in the lock.
+      requires:
+        items: [brass_key]
+      show_locked: true          # shown greyed-out until you have the key
+    - id: leave_inn
+      label: Go back outside
+      goto: ending_walk_away
+
+innkeeper:
+  title: The Innkeeper
+  text: |
+    The bell's chime hangs in the air. A pair of spectacles rises from
+    behind the desk, followed by nothing at all.
+
+    "Welcome, welcome," says a warm voice from just above the spectacles.
+    "Staying the night? We don't get many guests who can find us."
+  choices:
+    - id: recite_sign
+      label: '"Guests welcome, visible or otherwise."'
+      description: Repeat the words from the sign
+      goto: innkeeper
+      requires:
+        flags: [read_sign]
+        not_items: [lantern]
+      gives: [lantern]
+      result_text: |
+        The spectacles tilt approvingly. "Ah, someone who reads the sign!
+        Take this. You'll want it where you're going."
+    - id: back_to_foyer
+      label: Return to the foyer
+      goto: foyer
+
+green_room:
+  title: Behind the Green Door
+  ending: true
+  text: |
+    The door swings open onto a long hallway lit by lanterns that hang in
+    the air with nothing holding them. Somewhere at the far end, someone
+    is waiting for you.
+
+    **To be continued…**
+
+    *(End of the sample adventure. Writers: this is where the real story
+    begins.)*

@@ -1,0 +1,48 @@
+# Scenes can be split across as many files as you like.
+# Each file maps scene ids to scenes (title, text, choices).
+
+arrival:
+  title: A Gap in the Street
+  text: |
+    Fog rolls down Lantern Row. Between the bakery and the bookbinder's
+    there is a gap no wider than a doorway, and above it hangs a wooden
+    sign with nothing painted on it.
+
+    From somewhere inside the gap you hear laughter, the clink of glasses,
+    and a fiddle playing slightly out of tune.
+  choices:
+    - id: step_in
+      label: Step toward the laughter
+      goto: foyer
+    - id: read_sign
+      label: Look closer at the blank sign
+      goto: sign
+      requires:
+        not_flags: [read_sign]   # disappears once you've read it
+    - id: leave
+      label: Walk away
+      goto: ending_walk_away
+
+sign:
+  title: The Blank Sign
+  text: |
+    You breathe on the sign to wipe away the damp, and letters bloom in
+    the fog of your breath:
+
+    *THE INVISIBLE INN — Guests welcome, visible or otherwise.*
+
+    The words fade as quickly as they appeared.
+  choices:
+    - id: back
+      label: Step back into the street
+      goto: arrival
+      sets_flags: [read_sign]
+
+ending_walk_away:
+  title: Another Night
+  ending: true
+  text: |
+    You pull your coat tighter and head home. Behind you, the laughter
+    stops, and a door you never saw closes softly.
+
+    Perhaps the inn will be there another night.
