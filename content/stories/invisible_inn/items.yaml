@@ -1,0 +1,9 @@
+# Every item in the story. The key (e.g. brass_key) is the id that scenes use.
+
+brass_key:
+  name: Brass Key
+  description: Warm to the touch, as if someone was holding it a moment ago.
+
+lantern:
+  name: Glass Lantern
+  description: Its flame is visible even when the lantern isn't.
