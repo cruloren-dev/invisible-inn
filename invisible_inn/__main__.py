@@ -29,6 +29,9 @@ def main() -> int:
         for err in exc.errors:
             print(f"  ✘ {err}", file=sys.stderr)
         return 1
+    except ConfigError as exc:
+        print(f"Configuration problem: {exc}", file=sys.stderr)
+        return 1
     except discord.LoginFailure:
         print("Discord rejected the token. Check DISCORD_TOKEN in your .env file.", file=sys.stderr)
         return 1

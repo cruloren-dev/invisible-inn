@@ -207,6 +207,13 @@ class Adventure(commands.Cog):
         if not thread_id:
             return
         thread = self.bot.get_channel(thread_id)
+        if thread is None:
+            # Not cached, e.g. after a restart when /quit is used from the parent channel.
+            try:
+                thread = await self.bot.fetch_channel(thread_id)
+            except discord.HTTPException:
+                log.warning("Couldn't find thread %s to archive it", thread_id)
+                return
         if isinstance(thread, discord.Thread):
             try:
                 await thread.edit(archived=True, locked=True)

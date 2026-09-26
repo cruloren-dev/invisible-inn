@@ -26,7 +26,14 @@ class Config:
         except ImportError:  # python-dotenv is optional in production
             pass
         else:
-            load_dotenv()
+            try:
+                load_dotenv()
+            except UnicodeDecodeError:
+                # Usually a .env written by PowerShell's `>` or `Out-File`, which save UTF-16.
+                raise ConfigError(
+                    "The .env file isn't saved as UTF-8. Open it in Notepad, choose "
+                    "File → Save As, set Encoding to UTF-8, and save it again."
+                ) from None
 
         token = os.getenv("DISCORD_TOKEN", "").strip()
         if not token:

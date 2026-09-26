@@ -43,6 +43,9 @@ You'll need **Python 3.11 or newer**.
    You should see `Logged in as Invisible Inn…`. In your test server, type
    `/start` in any text channel.
 
+   For a full step-by-step check of every command, see
+   [docs/smoke-test.md](docs/smoke-test.md) (Windows PowerShell commands included).
+
 ### Discord setup checklist
 
 This is already done for the main bot. It's listed here for reference and for anyone making their own test bot.

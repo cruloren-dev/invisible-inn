@@ -90,6 +90,30 @@ class AdventureFlowTests(unittest.IsolatedAsyncioTestCase):
         i = await self.click(100, 3, "anything")
         self.assertIn("has ended", i.response.send_message.call_args.args[0])
 
+    async def test_dropdown_scene_flow(self):
+        from invisible_inn.ui import ChoiceSelect
+        for turn, choice in enumerate(["step_in", "ring_bell", "ask_drinks"]):
+            i = await self.click(100, turn, choice)
+        view = i.channel.send.call_args.kwargs["view"]
+        [select] = [c for c in view.children if isinstance(c, ChoiceSelect)]
+        values = [o.value for o in select.item.options]
+        self.assertIn("cider", values)
+        self.assertNotIn("lantern_oil", values)  # needs the lantern; menus hide locked choices
+
+        i = await self.click(100, 3, "cider")
+        self.assertIn("tastes of autumn", i.channel.send.call_args.kwargs["embed"].description)
+        i = await self.click(100, 4, "leave_bar")
+        self.assertEqual(i.channel.send.call_args.kwargs["embed"].title, "The Innkeeper")
+
+    async def test_quit_closes_uncached_thread(self):
+        thread = MagicMock(spec=discord.Thread)
+        thread.edit = AsyncMock()
+        self.bot.get_channel = MagicMock(return_value=None)
+        self.bot.fetch_channel = AsyncMock(return_value=thread)
+        await self.cog._close_thread(3)
+        self.bot.fetch_channel.assert_awaited_once_with(3)
+        thread.edit.assert_awaited_once_with(archived=True, locked=True)
+
     async def test_button_custom_id_round_trips(self):
         from invisible_inn.ui import ChoiceButton
         button = ChoiceButton(self.session.id, 4, "take_key", label="Take")
