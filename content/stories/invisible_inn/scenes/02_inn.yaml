@@ -11,6 +11,7 @@ foyer:
     - id: ring_bell
       label: Ring the bell on the desk
       goto: innkeeper
+      completes_quests: [find_the_innkeeper]
     - id: take_key
       label: Take the brass key
       goto: foyer
@@ -50,6 +51,16 @@ innkeeper:
       result_text: |
         The spectacles tilt approvingly. "Ah, someone who reads the sign!
         Take this. You'll want it where you're going."
+    - id: ask_cipher
+      label: Show the innkeeper the cipher on your cuff
+      goto: innkeeper
+      requires:
+        roles: [scholar]
+        quests_active: [decode_the_sign]   # only while the quest is in progress
+      completes_quests: [decode_the_sign]
+      result_text: |
+        "Oh, that old thing! I wrote it myself, to keep out anyone who
+        doesn't read the small print." The spectacles look delighted.
     - id: ask_drinks
       label: Ask what's on tap
       goto: bar

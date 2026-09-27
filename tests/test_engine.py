@@ -63,6 +63,62 @@ class EngineTests(unittest.TestCase):
     def test_old_saved_state_without_roles_still_loads(self):
         state = engine.GameState.from_json('{"scene_id": "foyer", "turn": 2}')
         self.assertEqual(state.roles, [])
+        self.assertEqual(state.quests, {})
+
+    def test_quest_state_round_trips_in_order(self):
+        state = engine.GameState("foyer", quests={"b": engine.QUEST_COMPLETED, "a": engine.QUEST_ACTIVE})
+        self.assertEqual(list(engine.GameState.from_json(state.to_json()).quests), ["b", "a"])
+
+
+class QuestTests(unittest.TestCase):
+    def setUp(self):
+        self.story = sample_story()
+        self.scholar = engine.new_game(self.story, ["scholar"])
+
+    def play(self, state, *choices):
+        result = None
+        for choice_id in choices:
+            result = engine.choose(self.story, state, choice_id)
+            state = result.state
+        return result
+
+    def test_quest_is_hidden_until_started_then_completed(self):
+        self.assertEqual(engine.visible_quests(self.story, self.scholar), ([], []))
+        result = self.play(self.scholar, "step_in")
+        self.assertEqual(result.quests_started, ("find_the_innkeeper",))
+        active, done = engine.visible_quests(self.story, result.state)
+        self.assertEqual(([q.id for q in active], done), (["find_the_innkeeper"], []))
+
+        result = engine.choose(self.story, result.state, "ring_bell")
+        self.assertEqual(result.quests_completed, ("find_the_innkeeper",))
+        active, done = engine.visible_quests(self.story, result.state)
+        self.assertEqual((active, [q.id for q in done]), ([], ["find_the_innkeeper"]))
+
+    def test_starting_or_completing_twice_is_not_announced_again(self):
+        state = self.play(self.scholar, "step_in", "ring_bell", "back_to_foyer").state
+        again = engine.choose(self.story, state, "ring_bell")
+        self.assertEqual((again.quests_started, again.quests_completed), ((), ()))
+        self.assertEqual(again.state.quests["find_the_innkeeper"], engine.QUEST_COMPLETED)
+
+    def test_secret_role_quest_flow(self):
+        result = self.play(self.scholar, "read_sign", "copy_cipher", "step_in", "ring_bell")
+        options = [o.choice.id for o in engine.options_for(self.story, result.state)]
+        self.assertIn("ask_cipher", options, "needs the quest to be in progress")
+        done = engine.choose(self.story, result.state, "ask_cipher")
+        self.assertEqual(done.quests_completed, ("decode_the_sign",))
+        self.assertNotIn("ask_cipher", [o.choice.id for o in engine.options_for(self.story, done.state)])
+
+    def test_quest_requirement_blocks_choice(self):
+        state = self.play(self.scholar, "step_in", "ring_bell").state
+        with self.assertRaises(engine.ChoiceUnavailable):
+            engine.choose(self.story, state, "ask_cipher")  # quest never started
+
+    def test_role_quests_hidden_from_other_roles(self):
+        state = engine.GameState("foyer", roles=["rogue"],
+                                 quests={"decode_the_sign": engine.QUEST_ACTIVE,
+                                         "find_the_innkeeper": engine.QUEST_ACTIVE})
+        active, _ = engine.visible_quests(self.story, state)
+        self.assertEqual([q.id for q in active], ["find_the_innkeeper"])
 
 
 class RoleTests(unittest.TestCase):

@@ -82,6 +82,39 @@ class RenderTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("condensation cipher", embed.description)
         self.assertIn("Playing as Scholar", embed.footer.text)
 
+    async def test_new_and_completed_quests_are_announced(self):
+        state = engine.new_game(self.story, ["scholar"])
+        result = engine.choose(self.story, state, "step_in")
+        embed, _ = self.ui.render_scene(self.story, result.state, 1, result)
+        quests = next(f for f in embed.fields if f.name == "Quests")
+        self.assertIn("New quest: **Who Runs This Place?**", quests.value)
+        result = engine.choose(self.story, result.state, "ring_bell")
+        embed, _ = self.ui.render_scene(self.story, result.state, 1, result)
+        self.assertIn("Quest complete", next(f for f in embed.fields if f.name == "Quests").value)
+
+    async def test_quests_card(self):
+        empty = self.ui.quests_embed(self.story, engine.new_game(self.story, ["scholar"]))
+        self.assertIn("haven't discovered any quests", empty.description)
+        state = engine.GameState("foyer", roles=["scholar"], quests={
+            "find_the_innkeeper": engine.QUEST_COMPLETED, "decode_the_sign": engine.QUEST_ACTIVE,
+        })
+        embed = self.ui.quests_embed(self.story, state)
+        names = [f.name for f in embed.fields]
+        self.assertEqual(names, ["📜 The Vanishing Letters · secret", "Completed"])
+        self.assertIn("Who Runs This Place?", embed.fields[1].value)
+
+    async def test_quests_card_stays_within_discord_limits(self):
+        from invisible_inn.content.models import Quest, Story
+        quests = {f"q{i}": Quest(f"q{i}", f"Quest number {i} " + "x" * 60, "d" * 1000) for i in range(60)}
+        story = Story("t", "T", "", "s", {}, {}, quests=quests)
+        state = engine.GameState("s", quests={q: (engine.QUEST_ACTIVE if i % 2 else engine.QUEST_COMPLETED)
+                                               for i, q in enumerate(quests)})
+        embed = self.ui.quests_embed(story, state)
+        self.assertLessEqual(len(embed.fields), 25)
+        self.assertLessEqual(len(embed), 6000)
+        self.assertTrue(all(len(f.value) <= 1024 for f in embed.fields))
+        self.assertIn("Completed", [f.name for f in embed.fields])
+
     async def test_cog_module_imports(self):
         import invisible_inn.client  # noqa: F401
         import invisible_inn.cogs.adventure  # noqa: F401

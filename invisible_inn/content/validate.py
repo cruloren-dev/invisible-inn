@@ -23,7 +23,8 @@ def main(argv: list[str] | None = None) -> int:
 
     for story in report.stories.values():
         roles = f", roles: {', '.join(r.name for r in story.roles.values())}" if story.roles else ""
-        print(f"✔ {story.title} ({story.id}): {len(story.scenes)} scenes, {len(story.items)} items{roles}")
+        print(f"✔ {story.title} ({story.id}): {len(story.scenes)} scenes, {len(story.items)} items, "
+              f"{len(story.quests)} quests{roles}")
     for w in report.warnings:
         print(f"⚠ warning: {w}")
     for e in report.errors:

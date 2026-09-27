@@ -14,6 +14,7 @@ arrival:
     - id: step_in
       label: Step toward the laughter
       goto: foyer
+      starts_quests: [find_the_innkeeper]   # announced under the next scene; see /quests
     - id: read_sign
       label: Look closer at the blank sign
       goto: sign
@@ -54,6 +55,7 @@ sign:
       result_text: You scribble the letters on your cuff. They'll keep.
       goto: arrival
       sets_flags: [read_sign]
+      starts_quests: [decode_the_sign]
 
 ending_walk_away:
   title: Another Night

@@ -13,6 +13,7 @@ text format made of `name: value` lines where indentation matters.
 content/stories/invisible_inn/     ← one folder per story (its name is the story id)
 ├── story.yaml                     ← title, description, which scene comes first
 ├── items.yaml                     ← every item players can carry
+├── quests.yaml                    ← every quest (optional)
 └── scenes/
     ├── 01_arrival.yaml            ← scenes, split into as many files as you like
     └── 02_inn.yaml
@@ -50,6 +51,31 @@ brass_key:                  # the item id: lowercase letters, numbers, _
   name: Brass Key           # what players see
   description: Warm to the touch.
 ```
+
+## quests.yaml
+
+```yaml
+find_the_innkeeper:         # the quest id: lowercase letters, numbers, _
+  title: Who Runs This Place?
+  description: The inn is open, but nobody is minding the desk.
+
+restore_research:
+  title: The Forbidden Research
+  description: Decide what to do with the encrypted journals.
+  role: scholar             # optional: a secret quest for this role only
+```
+
+Players see quests with `/quests`: the ones **in progress** (with their
+description) and the ones **completed**. A quest stays hidden until a choice
+starts it. Choices start and complete quests (see the next section), and each
+change is announced under the next scene ("📜 New quest: …" / "✅ Quest
+complete: …").
+
+- A quest with a `role` is a **secret quest**. Only players of that role see it
+  in `/quests`.
+- A choice can complete a quest that was never started. It then goes straight
+  into the completed list.
+- The validator warns about quests that nothing starts or completes.
 
 ## Scenes
 
@@ -105,6 +131,8 @@ so write `text` so it works for everyone.
 | `takes` | no | Items removed from the player's inventory |
 | `sets_flags` | no | Flags to remember (see below) |
 | `clears_flags` | no | Flags to forget |
+| `starts_quests` | no | Quests to start (they appear in `/quests`) |
+| `completes_quests` | no | Quests to mark completed |
 | `requires` | no | Conditions for the choice to appear (see below) |
 | `show_locked` | no | `true` = show greyed-out when requirements aren't met, instead of hiding it |
 
@@ -126,6 +154,9 @@ requires:
   flags: [read_sign]        # ALL of these flags must be set
   not_flags: [door_opened]  # NONE of these flags may be set
   roles: [scholar]          # only for these roles (any one of them)
+  quests_active: [find_the_innkeeper]  # these quests must be in progress
+  quests_done: [restore_research]      # these quests must be completed
+  not_quests_done: [restore_research]  # these quests must NOT be completed
 ```
 
 A choice with `roles` is shown with the role in front of its label, e.g.
@@ -142,6 +173,9 @@ Common patterns:
   `requires: {not_flags: [bell_rung]}`.
 - **Something only one role can do:** `requires: {roles: [rogue]}`. Make sure
   every role still has at least one choice in the scene, or they'll get stuck.
+- **A choice that finishes a quest, once:** `completes_quests: [x]` with
+  `requires: {quests_active: [x]}`. It shows up while the quest is in
+  progress, and disappears once it's done.
 
 ## Checking your work
 

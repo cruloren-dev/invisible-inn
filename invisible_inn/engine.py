@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 
-from .content.models import Choice, Requirements, Scene, Story, role_label
+from .content.models import Choice, Quest, Requirements, Scene, Story, role_label
 
 
 class ChoiceUnavailable(Exception):
@@ -27,6 +27,9 @@ class GameState:
     roles: list[str] = field(default_factory=list)
     """Roles in the party. Solo games have one. Empty until the player picks a role
     (or always empty, for stories without roles)."""
+    quests: dict[str, str] = field(default_factory=dict)
+    """Quest id -> ACTIVE or COMPLETED, in the order they were discovered.
+    Quests the story hasn't introduced yet aren't here."""
 
     def to_json(self) -> str:
         return json.dumps({
@@ -35,6 +38,7 @@ class GameState:
             "inventory": self.inventory,
             "flags": sorted(self.flags),
             "roles": self.roles,
+            "quests": self.quests,
         })
 
     @classmethod
@@ -46,7 +50,11 @@ class GameState:
             inventory=list(data.get("inventory", [])),
             flags=set(data.get("flags", [])),
             roles=list(data.get("roles", [])),
+            quests=dict(data.get("quests", {})),
         )
+
+
+QUEST_ACTIVE, QUEST_COMPLETED = "active", "completed"
 
 
 @dataclass(frozen=True)
@@ -62,6 +70,8 @@ class ChoiceResult:
     chosen: Choice
     gained: tuple[str, ...]
     lost: tuple[str, ...]
+    quests_started: tuple[str, ...] = ()
+    quests_completed: tuple[str, ...] = ()
 
     @property
     def finished(self) -> bool:
@@ -80,7 +90,7 @@ def needs_role(story: Story, state: GameState) -> bool:
 def with_roles(state: GameState, roles: list[str]) -> GameState:
     """A copy of ``state`` with the party's roles set."""
     return GameState(scene_id=state.scene_id, turn=state.turn, inventory=list(state.inventory),
-                     flags=set(state.flags), roles=list(roles))
+                     flags=set(state.flags), roles=list(roles), quests=dict(state.quests))
 
 
 def meets(req: Requirements, state: GameState) -> bool:
@@ -91,7 +101,25 @@ def meets(req: Requirements, state: GameState) -> bool:
         and all(f in state.flags for f in req.flags)
         and not any(f in state.flags for f in req.not_flags)
         and (not req.roles or any(r in state.roles for r in req.roles))
+        and all(state.quests.get(q) == QUEST_ACTIVE for q in req.quests_active)
+        and all(state.quests.get(q) == QUEST_COMPLETED for q in req.quests_done)
+        and not any(state.quests.get(q) == QUEST_COMPLETED for q in req.not_quests_done)
     )
+
+
+def visible_quests(story: Story, state: GameState) -> tuple[list[Quest], list[Quest]]:
+    """(active, completed) quests this party can see, in the order they were discovered.
+
+    A role's secret quests are only listed for a party with that role. (For group
+    play, this will need to filter by the player asking instead.)
+    """
+    active, completed = [], []
+    for quest_id, status in state.quests.items():
+        quest = story.quests.get(quest_id)
+        if quest is None or (quest.role and quest.role not in state.roles):
+            continue
+        (completed if status == QUEST_COMPLETED else active).append(quest)
+    return active, completed
 
 
 def scene_text(scene: Scene, state: GameState) -> str:
@@ -132,11 +160,20 @@ def choose(story: Story, state: GameState, choice_id: str) -> ChoiceResult:
     inventory.extend(gained)
 
     flags = (set(state.flags) | set(choice.sets_flags)) - set(choice.clears_flags)
+
+    quests = dict(state.quests)
+    started = tuple(q for q in choice.starts_quests if q not in quests)
+    for q in started:
+        quests[q] = QUEST_ACTIVE
+    completed = tuple(q for q in choice.completes_quests if quests.get(q) != QUEST_COMPLETED)
+    for q in completed:
+        quests[q] = QUEST_COMPLETED
+
     new_state = GameState(
         scene_id=choice.goto, turn=state.turn + 1, inventory=inventory, flags=flags,
-        roles=list(state.roles),
+        roles=list(state.roles), quests=quests,
     )
     return ChoiceResult(
         state=new_state, scene=story.scene(choice.goto), chosen=choice,
-        gained=gained, lost=lost,
+        gained=gained, lost=lost, quests_started=started, quests_completed=completed,
     )

@@ -66,8 +66,8 @@ invisible_inn/
   engine.py          pure game rules: GameState, options_for(), choose()
   storage.py         SQLite: sessions + session_players, MIGRATIONS list
   ui.py              embeds, ChoiceButton / ChoiceSelect DynamicItems
-  cogs/adventure.py  /start /inventory /quit /help + handle_choice()
-content/stories/<story_id>/   story.yaml, items.yaml, scenes/*.yaml
+  cogs/adventure.py  /start /inventory /quests /quit /help + handle_choice() / handle_role()
+content/stories/<story_id>/   story.yaml (incl. roles), items.yaml, quests.yaml, scenes/*.yaml
 tests/               unittest-style tests (run with pytest)
 ```
 
@@ -127,16 +127,14 @@ dropdowns that survive restarts, a sample story, docs, tests and CI.
 **Also done:** the live smoke test was started on the owner's test server (the bot
 connects and syncs commands). PR #4 made `/quit` and `/start` inside a thread link
 back to the game's channel. Story and mechanics design is agreed: see
-`docs/story-and-mechanics-design.md`.
+`docs/story-and-mechanics-design.md`. **Roles** (PR #6): a role picker, role-locked
+and labelled choices, and `role_text`. **Quests** (PR #7): `quests.yaml`,
+`starts_quests` / `completes_quests`, quest requirements and `/quests`.
 
 **Next: v1 (solo), roughly in order:**
-1. **Roles:** pick a role at the start of a game, role-locked and labelled
-   choices, and role-specific scene text.
-2. **Quests:** quests defined in YAML, started and completed by choices, and a
-   `/quests` command. Build it so secret quests can grow to 10 per role.
-3. **Content:** move the sample story to a test fixture, then draft the Scholar
+1. **Content:** move the sample story to a test fixture, then draft the Scholar
    playable slice for the owner to edit.
-4. Finish the live smoke test with the new content.
+2. Finish the live smoke test with the new content.
 
 **After v1:** multiplayer (v1.1, see the design doc's v1 scope box and the open
 questions in `docs/architecture.md`), then **Railway deployment**, which needs a

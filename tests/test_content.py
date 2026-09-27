@@ -79,6 +79,51 @@ class ValidationTests(unittest.TestCase):
         self.assertIsNone(story)
         self.assertIn("with its role tag", "\n".join(report.errors))
 
+    def write_quests(self, text):
+        from textwrap import dedent
+        (self.root / "test_story" / "quests.yaml").write_text(dedent(text))
+
+    def test_quests_load_and_are_checked(self):
+        write_story(self.root, """
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: go, label: Go, goto: start, starts_quests: [find], requires: {quests_done: [ghost]}}
+        """, story_extra=self.ROLES)
+        self.write_quests("""
+            find: {title: Find it, description: Somewhere., role: scholar}
+            lost: {title: Lost, role: bard}
+            bad: {name: No title}
+        """)
+        report = LoadReport()
+        story = load_story(self.root / "test_story", report)
+        self.assertIsNone(story)
+        joined = "\n".join(report.errors)
+        self.assertIn("quest 'ghost' is not defined", joined)
+        self.assertIn("role 'bard' is not defined", joined)
+        self.assertIn("quests.yaml › bad: needs at least a 'title'", joined)
+
+    def test_warns_about_quests_never_completed(self):
+        write_story(self.root, """
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: go, label: Go, goto: start, starts_quests: [find]}
+        """)
+        self.write_quests("""
+            find: {title: Find it}
+            unused: {title: Unused}
+        """)
+        report = LoadReport()
+        story = load_story(self.root / "test_story", report)
+        self.assertIsNotNone(story)
+        self.assertEqual(story.quests["find"].title, "Find it")
+        joined = "\n".join(report.warnings)
+        self.assertIn("find: no choice completes this quest", joined)
+        self.assertIn("unused: no choice starts or completes", joined)
+
     def test_reports_no_playable_role(self):
         story, report = self.load("""
             start: {title: End, text: Bye, ending: true}
