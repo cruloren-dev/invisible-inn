@@ -27,7 +27,8 @@ All story files are in **`content/stories/invisible_inn/`**:
 | `scenes/03_parlor.yaml` | Milestone 3: the parlour and the guest book |
 | `scenes/04_library.yaml` | Milestones 3 and 5: the library and the Scholar's archive |
 | `scenes/05_study.yaml` | Milestone 4: the innkeeper's study and message |
-| `scenes/06_revelation.yaml` | Milestone 8 (slice version) and the three endings |
+| `scenes/06_dinner.yaml` | Milestones 6–7: the dinner, being nearly caught, the inn rearranging itself, Fennick's reversal, the window onto Little Mumbling |
+| `scenes/07_revelation.yaml` | Milestone 8 (slice version), what happens after confessing, and the three endings |
 
 To find a scene, look it up in the story map. Each scene there shows its id and file.
 
@@ -166,30 +167,47 @@ More patterns (items, quests, role text) are in [`content-guide.md`](content-gui
 
 ## Open story questions
 
-These are the questions for writers to work out before Claude builds more.
-Answer them however suits you (in a pull request, a GitHub issue, or by telling
-the project owner), and change the story directly where the answer is text.
+These are the questions for writers to work out. Claude has drafted a
+**proposed answer** to each (as of 2026-09-27, PR #14). Where the answer is
+story text, it's already in the files. **Writers have the final say:** change
+the text directly, or note a different answer here.
 
-1. **Placeholder names.** Replace or confirm: **Sable** (Rogue), **Fennick**
-   (Mage), **Madame Thistlewick** (the innkeeper), **Little Mumbling** and **memory
-   ink** (the Scholar's past), the **kettle** (Fennick's mentor), the **vault**
-   (Sable's secret). The list is at the top of `story.yaml`.
-2. **Length.** The slice plays in about 15–20 minutes; the goal is 20–30.
-   Milestones 6–7 (the dining-room conflict, and the inn reacting to the
-   friends' choices) aren't written yet. What happens in them? Even a list of
-   beats is enough for Claude to draft from.
-3. **The Scholar's secret.** Does the memory-ink / lost-Tuesdays secret work?
-   Can the Scholar *nearly get caught* with the journal before the revelation?
-4. **Endings of the slice.** Are three endings right (confess, keep the secret,
-   never find the journal)? Should keeping the secret have consequences in later
-   chapters?
-5. **The Forbidden Research as a multi-step quest.** Multi-step quests are
-   planned. What would the steps of this quest be?
-6. **The Rogue and Mage paths.** Each needs its own route through the library
-   (Sable's vault, Fennick's kettle) and its own secret room before they can be
-   played. Where do their secrets start and resolve?
-7. **Revelation with several players.** In the slice, Sable and Fennick confess
-   as background characters. In multiplayer they may be real players. How should
-   the revelation work then?
-8. **Tone and pacing.** Read it on a phone as well as a computer. Mark any scene
-   that feels too long, too short, unclear, or not funny enough.
+1. **Placeholder names.** ⏳ *Still open.* Replace or confirm: **Sable** (Rogue),
+   **Fennick** (Mage), **Madame Thistlewick** (the innkeeper), **Little Mumbling**
+   and **memory ink** (the Scholar's past), the **kettle** and **Master Oolong**
+   (Fennick's mentor), the **vault** (Sable's secret). The list is at the top of
+   `story.yaml`.
+2. **Length.** ✏️ *Proposed:* Milestones 6–7 are now drafted in
+   `06_dinner.yaml`. A pointed dinner where each plate hints at a secret; the
+   Scholar nearly gets caught with the journal; the inn rearranges its corridors;
+   Fennick's reversal fails; a window onto Little Mumbling. The chapter is now
+   about 3,200 words (roughly 20–25 minutes).
+3. **The Scholar's secret.** ✏️ *Proposed:* keep memory ink and the lost Tuesdays.
+   **Yes, they nearly get caught**: if carrying the journal, Sable spots it at
+   dinner. The Scholar can lie ("It's a book. About soup."), promise to explain
+   after dinner, or try a drop of memory ink on Sable's napkin (it doesn't work
+   the way they hope).
+4. **Endings of the slice.** ✏️ *Proposed:* keep three endings. Confessing lets the
+   inn "settle": only then does Fennick's reversal finally work. Keeping the
+   secret leaves *The Forbidden Research* in progress, as a thread for Chapter Two.
+   Whether the Scholar lied at dinner or kept the ink is remembered (flags
+   `told_a_lie`, `kept_ink`) for later chapters to use.
+5. **The Forbidden Research as a multi-step quest.** ✏️ *Proposed steps,* for when
+   multi-step quests are built: (1) find the journal, (2) decide about Little
+   Mumbling, (3) decide about the ink, (4) tell your friends. For now, the
+   writer's three Scholar quests cover these: *The Forbidden Research* (1 and 4),
+   *What Is Memory, Really?* (2) and *Memory Is A Fickle Thing* (3).
+6. **The Rogue and Mage paths.** ✏️ *Partly proposed:* their secret quests are in
+   place and play out in the Scholar's story. *Clear the Air* (Sable) starts
+   when you ask what she's looking for and completes when she confesses. *Cure
+   the Kettle* (Fennick) starts when you're kind to the kettle and completes when
+   all three friends help after the Scholar's confession. A Scholar never sees
+   these quests. ⏳ *Still open:* each role's own route through the library and
+   secret room (Sable's vault, Fennick's notes) before the Rogue and Mage can be
+   played.
+7. **Revelation with several players.** ✏️ *Proposed:* each player's
+   "confess / keep it / nothing to hide" choice happens in turn around the desk,
+   in the order they arrived. The inn only "settles" (and the kettle can only be
+   cured) if everyone confesses. This needs multiplayer (v1.1) to build.
+8. **Tone and pacing.** ⏳ *Still open.* Read it on a phone as well as a computer.
+   Mark any scene that feels too long, too short, unclear, or not funny enough.

@@ -1,5 +1,14 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "watchPatterns": [
+      "invisible_inn/**",
+      "content/**",
+      "requirements.txt",
+      "railway.json",
+      ".python-version"
+    ]
+  },
   "deploy": {
     "startCommand": "python -m invisible_inn",
     "numReplicas": 1,

@@ -161,8 +161,13 @@ endings, 3 quests). Placeholder names are listed at the top of its `story.yaml`.
 2. Finish the live smoke test (`docs/smoke-test.md` sections 3 and 4).
 
 **Railway** (PR #11): deployed and live. **Writers' toolkit** (PR #12): the story
-map and the editing guide. **Writers are now working through the open story
-questions** in `docs/editing-guide.md` before Claude drafts more content.
+map and the editing guide. **Chapter One continued** (PR #14): Milestones 6–7
+(`06_dinner.yaml`), the writer's secret quests wired in (2 more Scholar quests,
+plus Sable's and Fennick's, which play out invisibly in the Scholar's story),
+and Claude's proposed answers to the open story questions in
+`docs/editing-guide.md`. Items 1, 6 (the Rogue and Mage routes) and 8 there are
+still open for writers. Secret quests of other roles are never announced
+(`engine.quest_visible`).
 
 **After v1:** multiplayer (v1.1, see the design doc's v1 scope box and the open
 questions in `docs/architecture.md`). A separate dev bot for local testing is

@@ -406,6 +406,24 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
     return story
 
 
+_OPPOSITES = {"items": "not_items", "not_items": "items", "flags": "not_flags", "not_flags": "flags",
+              "quests_done": "not_quests_done", "not_quests_done": "quests_done"}
+
+
+def _single_condition(req: Requirements) -> tuple[str, str] | None:
+    """The one condition a choice has, e.g. ("items", "journal"), if it has exactly one."""
+    conditions = [(kind, value) for kind in (*_OPPOSITES, "roles", "quests_active")
+                  for value in getattr(req, kind)]
+    return conditions[0] if len(conditions) == 1 else None
+
+
+def _has_complementary_pair(choices) -> bool:
+    """True if two choices cover both sides of one condition (e.g. has / doesn't have
+    the journal), so one of them is always available."""
+    singles = {_single_condition(c.requires) for c in choices} - {None}
+    return any((_OPPOSITES.get(kind), value) in singles for kind, value in singles)
+
+
 def _reachability_warnings(story: Story) -> list[str]:
     warnings = []
     seen = {story.start_scene}
@@ -421,7 +439,8 @@ def _reachability_warnings(story: Story) -> list[str]:
     if not any(s.ending for s in story.scenes.values()):
         warnings.append(f"{story.id}: has no ending scene")
     for scene in story.scenes.values():
-        if scene.choices and all(not c.requires.is_empty() for c in scene.choices):
+        if scene.choices and all(not c.requires.is_empty() for c in scene.choices) \
+                and not _has_complementary_pair(scene.choices):
             warnings.append(
                 f"{scene.source_file} › {scene.id}: every choice has requirements — "
                 "players could get stuck here"

@@ -106,6 +106,7 @@ kitchen:
       requires:
         not_flags: [kettle_cheered]
       sets_flags: [kettle_cheered]
+      starts_quests: [cure_the_kettle]   # Fennick's (the Mage's) secret quest; a Scholar never sees it
       result_text: |
         You tell the kettle it has a lovely shine. It whistles a happy little
         tune, one that Fennick apparently recognises, because he drops his
