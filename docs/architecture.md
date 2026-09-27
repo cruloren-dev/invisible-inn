@@ -140,7 +140,10 @@ Still to design and build:
 
 ## Moving to Railway
 
-- Run command: `python -m invisible_inn`
+Step-by-step guide for the owner: `docs/railway.md`.
+
+- Run command: `python -m invisible_inn` (set in `railway.json`, with one replica
+  and restart-on-failure). `.python-version` pins Python 3.11 to match CI.
 - Set `DISCORD_TOKEN` (and leave `DEV_GUILD_ID` blank for global commands, or
   set it if the bot stays in one server) in Railway's variables.
 - SQLite needs a **persistent volume**. Mount one (e.g. at `/data`) and set
