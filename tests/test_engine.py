@@ -101,11 +101,15 @@ class QuestTests(unittest.TestCase):
         self.assertEqual(again.state.quests["find_the_innkeeper"], engine.QUEST_COMPLETED)
 
     def test_secret_role_quest_flow(self):
-        result = self.play(self.scholar, "read_sign", "copy_cipher", "step_in", "ring_bell")
+        copied = self.play(self.scholar, "read_sign", "copy_cipher")
+        self.assertEqual(copied.gained, ("cuff_cipher",))
+        result = self.play(copied.state, "step_in", "ring_bell")
+        self.assertIn("cuff_cipher", result.state.inventory, "kept until shown to the innkeeper")
         options = [o.choice.id for o in engine.options_for(self.story, result.state)]
         self.assertIn("ask_cipher", options, "needs the quest to be in progress")
         done = engine.choose(self.story, result.state, "ask_cipher")
         self.assertEqual(done.quests_completed, ("decode_the_sign",))
+        self.assertEqual(done.lost, ("cuff_cipher",))
         self.assertNotIn("ask_cipher", [o.choice.id for o in engine.options_for(self.story, done.state)])
 
     def test_quest_requirement_blocks_choice(self):

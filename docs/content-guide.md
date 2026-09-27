@@ -176,6 +176,10 @@ Common patterns:
 - **A choice that finishes a quest, once:** `completes_quests: [x]` with
   `requires: {quests_active: [x]}`. It shows up while the quest is in
   progress, and disappears once it's done.
+- **A quest item you carry until you hand it over:** give the item in the choice
+  that starts the quest (`gives: [cuff_cipher]`), then require and take it in the
+  choice that completes it (`requires: {items: [cuff_cipher]}`,
+  `takes: [cuff_cipher]`). Players can see it in `/inventory` in the meantime.
 
 ## Checking your work
 

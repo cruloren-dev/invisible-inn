@@ -35,7 +35,8 @@ Read these before making significant changes:
 | Roles | Players pick Scholar, Rogue or Mage. Scholar content comes first |
 | Multiplayer role visibility | Role choices are visible to all players and labelled with the role. Only secret-quest details are private |
 | Multiplayer conflicts | The first player to choose decides where the story goes |
-| Quests | A real quest system (active / completed, only shown once introduced). v1 has 1 Scholar quest; it will grow to 10 per role |
+| Quests | A real quest system (active / completed, only shown once introduced). v1 has 1 Scholar quest; it will grow to 10 per role. **Multi-step quests** are a confirmed future requirement (see `docs/architecture.md`) |
+| Quest items | Something a quest is about (e.g. a copied cipher) should be a visible item until it's used |
 | Story text | Claude may draft scenes. The owner edits them and has the final say |
 
 ## Commands

@@ -56,7 +56,9 @@ innkeeper:
       goto: innkeeper
       requires:
         roles: [scholar]
+        items: [cuff_cipher]               # needs the cipher you copied
         quests_active: [decode_the_sign]   # only while the quest is in progress
+      takes: [cuff_cipher]                 # the innkeeper keeps it
       completes_quests: [decode_the_sign]
       result_text: |
         "Oh, that old thing! I wrote it myself, to keep out anyone who
