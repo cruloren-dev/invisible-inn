@@ -4,7 +4,7 @@ A text-adventure game played in Discord. Players start an adventure with
 `/start`, and the story unfolds in a private thread where they make choices
 with buttons and menus.
 
-- **For writers:** [docs/content-guide.md](docs/content-guide.md) explains how to write scenes, choices and items.
+- **For writers:** start with [docs/editing-guide.md](docs/editing-guide.md) (how to edit the story on GitHub, step by step) and the [story map](docs/story-map.md). [docs/content-guide.md](docs/content-guide.md) is the full reference for scenes, choices, items, roles and quests.
 - **For developers:** [docs/architecture.md](docs/architecture.md) covers how the bot is put together and the plan for group play.
 
 ## Commands

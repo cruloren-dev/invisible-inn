@@ -34,6 +34,11 @@ updates its permissions.)
 
 ## 2. Start the bot
 
+> ⚠️ **The live bot runs on Railway.** Don't start it on your computer with the same
+> token while Railway is running, or both copies answer every click. Either test
+> the Railway bot directly (skip the start command below), or use a separate dev
+> bot with its own token in your `.env`.
+
 ```powershell
 .venv\Scripts\python -m invisible_inn.content.validate   # expect "Content looks good."
 .venv\Scripts\python -m pytest                           # expect all passed

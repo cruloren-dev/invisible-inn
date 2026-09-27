@@ -17,6 +17,8 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: Check story content
         run: python -m invisible_inn.content.validate
+      - name: Story map for this change (see the run's Summary page)
+        run: python -m invisible_inn.content.storymap >> "$GITHUB_STEP_SUMMARY"
       - name: Run tests
         run: python -m pytest -v
         env:
