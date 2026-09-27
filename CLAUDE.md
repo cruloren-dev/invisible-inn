@@ -13,6 +13,9 @@ The project owner is a **project manager, not a developer**, working on
 give copy-pasteable Windows/PowerShell commands (e.g. `.venv\Scripts\python`).
 
 Read these before making significant changes:
+- `docs/story-and-mechanics-design.md`: the story plan and the new mechanics it
+  needs. **Its "v1 scope" box at the top is the agreed plan for v1**. The rest of
+  that document is the long-term vision.
 - `docs/architecture.md`: layers, game flow, data model, group-play plan, Railway notes
 - `docs/content-guide.md`: the YAML story format (the writers' reference)
 
@@ -29,6 +32,11 @@ Read these before making significant changes:
 | Storage | SQLite via built-in `sqlite3` + `asyncio.to_thread` (no aiosqlite) |
 | Hosting | Local now, Railway later |
 | Narration | Pre-written text only. **No** AI-generated narration |
+| Roles | Players pick Scholar, Rogue or Mage. Scholar content comes first |
+| Multiplayer role visibility | Role choices are visible to all players and labelled with the role. Only secret-quest details are private |
+| Multiplayer conflicts | The first player to choose decides where the story goes |
+| Quests | A real quest system (active / completed, only shown once introduced). v1 has 1 Scholar quest; it will grow to 10 per role |
+| Story text | Claude may draft scenes. The owner edits them and has the final say |
 
 ## Commands
 
@@ -116,15 +124,21 @@ about Discord. Keep it this way so game logic stays unit-testable.
 engine, SQLite storage, `/start` `/inventory` `/quit` `/help`, buttons and
 dropdowns that survive restarts, a sample story, docs, tests and CI.
 
-**Next, roughly in order:**
-1. **Live smoke test** against the test server, following `docs/smoke-test.md`.
-   Everything so far is tested only with simulated Discord objects.
-2. **Story and game-mechanics design** with the owner. Writers replace the sample
-   story. This may call for new content features (e.g. conditional text within a
-   scene, counters/stats, random outcomes). Design these with the owner before
-   building.
-3. **Group play.** Open questions are listed in `docs/architecture.md`: `/invite`
-   and a lobby, how a group decides (first click, vote with timer, turns), shared
-   vs per-player inventory, and attribution.
-4. **Railway deployment.** It needs a persistent volume for SQLite
-   (`DATABASE_PATH=/data/...`) and only one running instance.
+**Also done:** the live smoke test was started on the owner's test server (the bot
+connects and syncs commands). PR #4 made `/quit` and `/start` inside a thread link
+back to the game's channel. Story and mechanics design is agreed: see
+`docs/story-and-mechanics-design.md`.
+
+**Next: v1 (solo), roughly in order:**
+1. **Roles:** pick a role at the start of a game, role-locked and labelled
+   choices, and role-specific scene text.
+2. **Quests:** quests defined in YAML, started and completed by choices, and a
+   `/quests` command. Build it so secret quests can grow to 10 per role.
+3. **Content:** move the sample story to a test fixture, then draft the Scholar
+   playable slice for the owner to edit.
+4. Finish the live smoke test with the new content.
+
+**After v1:** multiplayer (v1.1, see the design doc's v1 scope box and the open
+questions in `docs/architecture.md`), then **Railway deployment**, which needs a
+persistent volume for SQLite (`DATABASE_PATH=/data/...`) and only one running
+instance.
