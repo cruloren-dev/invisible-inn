@@ -91,7 +91,11 @@ Built to grow (the plan is 10 secret quests per role plus shared quests):
   within Discord's 25-field / 6000-character embed limits, with a "…and N more"
   footer if it has to drop some.
 - Quest state is a status per quest, so adding steps or objectives later means
-  adding to `Quest` and to the stored status, not redesigning.
+  adding to `Quest` and to the stored status, not redesigning. **Multi-step
+  quests are a confirmed future requirement.** A likely shape is `steps:` in
+  `quests.yaml`, an `advances_quests` / `completes_steps` choice field, stored
+  progress per quest (e.g. `{"status": "active", "steps": [...]}`, reading the old
+  plain-string format too), and progress shown in `/quests`.
 - **For group play:** scene announcements ("📜 New quest: …") are posted in the
   shared thread. For secret quests, v1.1 needs to replace that with the agreed
   "secret quest notification" (others learn *that* something happened, not

@@ -4,6 +4,10 @@ brass_key:
   name: Brass Key
   description: Warm to the touch, as if someone was holding it a moment ago.
 
+cuff_cipher:
+  name: Cipher on Your Cuff
+  description: The sign's vanishing letters, scribbled in ink on your sleeve.
+
 lantern:
   name: Glass Lantern
   description: Its flame is visible even when the lantern isn't.

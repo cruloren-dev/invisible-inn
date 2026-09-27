@@ -36,6 +36,11 @@
 > every player, secret-quest notifications, agreeing on an ending, what to do when a
 > player goes idle, the Rogue and Mage paths, secret quests 2–10, and the remaining
 > milestones.
+>
+> **Multi-step quests (requested 2026-09-27, future version):** quests will
+> usually take several steps to complete. `/quests` should show progress through
+> the steps. In v1 a quest is started and completed by single choices, and writers
+> can approximate steps with flags and items.
 
 ## Summary
 

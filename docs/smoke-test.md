@@ -56,13 +56,13 @@ Play in a normal text channel. ✅ = what should happen.
 | 4a | Click **Scholar** | The card freezes with "▶ *you* chose: Scholar"; *A Gap in the Street* with 3 buttons and the footer "The Invisible Inn · Playing as Scholar" |
 | 5 | `/start` again | "You already have an adventure in progress…" with a link to the thread |
 | 6 | In the thread: **Look closer at the blank sign** | The Scholar's version of the text (it mentions a "condensation cipher") and a **[Scholar] Copy the cipher before it fades** button |
-| 6a | **[Scholar] Copy the cipher before it fades** | The old message freezes with "▶ *you* chose: [Scholar] Copy…". Back at the street: the line "You scribble the letters…", a Quests box with "📜 New quest: The Vanishing Letters", and the sign button is gone |
+| 6a | **[Scholar] Copy the cipher before it fades** | The old message freezes with "▶ *you* chose: [Scholar] Copy…". Back at the street: the line "You scribble the letters…", ➕ Cipher on Your Cuff, a Quests box with "📜 New quest: The Vanishing Letters", and the sign button is gone |
 | 7 | **Step toward the laughter** | *The Foyer*, 4 buttons; **Open the green door** is grey. Quests box: "📜 New quest: Who Runs This Place?" |
 | 7a | `/quests` | A card only you can see: *The Vanishing Letters · secret* and *Who Runs This Place?*, each with a description |
 | 8 | **Take the brass key** | The line "You lift the key…", an Inventory box with ➕ Brass Key, the take-key button gone, and the green door now clickable |
-| 9 | `/inventory` in the thread | Brass Key with its description |
+| 9 | `/inventory` in the thread | Cipher on Your Cuff and Brass Key, with their descriptions |
 | 10 | **Ring the bell** | *The Innkeeper*, with "✅ Quest complete: Who Runs This Place?" and a **[Scholar] Show the innkeeper the cipher on your cuff** button |
-| 10a | **[Scholar] Show the innkeeper the cipher…**, then `/quests` | "✅ Quest complete: The Vanishing Letters" and the button is gone. `/quests` lists both quests under **Completed** |
+| 10a | **[Scholar] Show the innkeeper the cipher…**, then `/quests` | ➖ Cipher on Your Cuff, "✅ Quest complete: The Vanishing Letters" and the button is gone. `/quests` lists both quests under **Completed** |
 | 10b | **"Guests welcome…"** | ➕ Glass Lantern |
 | 11 | **Ask what's on tap** | *The Bar* with a **dropdown menu** ("What do you do?") instead of buttons |
 | 12 | Open the menu and pick a drink | Freezes the old message, posts the bar again with the drink's line. Hints appear under each option; *A thimble of lantern oil* shows because you have the lantern |
