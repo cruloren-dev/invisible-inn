@@ -1,5 +1,9 @@
 # Writing story content
 
+> **New here?** Start with [`editing-guide.md`](editing-guide.md): how to edit the
+> story on the GitHub website, step by step. The [`story-map.md`](story-map.md)
+> shows every scene and path. This page is the full reference for every field.
+
 Stories live in `content/stories/`. You don't need to touch any Python code to
 write or change scenes, items or choices. You only edit YAML files, a simple
 text format made of `name: value` lines where indentation matters.

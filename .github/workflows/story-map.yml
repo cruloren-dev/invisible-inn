@@ -1,0 +1,37 @@
+name: Update story map
+
+# Rebuilds docs/story-map.md whenever story content (or the map generator) changes
+# on main, so writers always have an up-to-date map without editing it by hand.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/**"
+      - "invisible_inn/content/**"
+  workflow_dispatch:   # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m invisible_inn.content.storymap --out docs/story-map.md
+      - name: Commit the map if it changed
+        run: |
+          if git diff --quiet -- docs/story-map.md; then
+            echo "The story map is already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/story-map.md
+          git commit -m "Update story map [skip ci]"
+          git push
