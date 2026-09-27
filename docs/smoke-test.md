@@ -108,6 +108,8 @@ Scholar. There's no fixed script. Check that:
 | 1b | **Knock**, then **Step back outside into the storm** | Back at *A Very Rude Storm*, with the storm line at the bottom |
 | 2 | Play through to an ending | Every scene has a way forward. Locked choices (STAFF ONLY, the Restricted section, *Call everyone together*) unlock as described in their scenes |
 | 3 | `/quests` along the way | *The Inn's Chaotic History* and *The Empty Front Desk* appear only once introduced. The Scholar's secret *The Forbidden Research* appears after taking the journal |
+| 3a | Take the journal and the vial in the archive, then go to dinner | Sable asks "What's under your coat?". Later, a window onto Little Mumbling appears in the rearranged hallway |
+| 3b | Confess, then help with the kettle and pour out the ink | Master Oolong appears. *Memory Is A Fickle Thing* completes. `/quests` never shows *Clear the Air* or *Cure the Kettle* (they're Sable's and Fennick's) |
 | 4 | Replay with different choices | Three endings: confess (secret quest completes), keep the secret (quest stays in progress) and never take the journal |
 | 5 | Reading it as a player | Note anything that feels too long, too short, unclear or not funny, and the scene it's in |
 

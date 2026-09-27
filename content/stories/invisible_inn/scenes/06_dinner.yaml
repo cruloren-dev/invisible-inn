@@ -1,0 +1,209 @@
+# Milestone 6: Conflicting Motivations (the dinner) and
+# Milestone 7: The Inn Has Opinions (the inn rearranges itself). DRAFT: edit freely.
+
+dining_room:
+  title: A Very Pointed Dinner
+  text: |
+    The dining room has laid a table for exactly three. Candles light
+    themselves as you sit down. The food is wonderful, and every plate is a
+    small act of emotional sabotage.
+
+    Sable's bread roll clinks when she picks it up. Fennick has been served a
+    cup of tea from the kitchen kettle, and is staring at it like it might
+    apologise. Your soup is alphabet soup, and the letters are drifting into
+    formation.
+
+    For a while, the only sound is cutlery. Then Sable says, very casually,
+    "So. Anyone find anything *interesting* today?"
+
+    Nobody answers. The candles lean in.
+  choices:
+    - id: read_soup
+      label: Read the letters in your soup
+      goto: dining_room
+      requires:
+        roles: [scholar]
+        not_flags: [read_soup]
+      sets_flags: [read_soup]
+      result_text: T. U. E. S. D. A. Y. You eat the Y very quickly. It doesn't help.
+    - id: ask_sable_roll
+      label: Ask Sable why her bread roll clinks
+      goto: dining_room
+      requires:
+        not_flags: [asked_about_roll]
+      sets_flags: [asked_about_roll]
+      result_text: |
+        "It doesn't," says Sable, and cuts it open anyway. A small brass key
+        falls onto her plate. She pockets it before it stops spinning and
+        changes the subject to the weather, which is still rude.
+    - id: ask_fennick_tea
+      label: Ask Fennick why he won't drink his tea
+      goto: dining_room
+      requires:
+        not_flags: [asked_about_tea]
+      sets_flags: [asked_about_tea]
+      result_text: |
+        "It's from the kettle," Fennick says. "It feels... impolite." The tea
+        ripples, apparently in agreement.
+    - id: excuse_with_journal
+      label: Excuse yourself from the table
+      goto: dinner_caught
+      requires:
+        items: [forbidden_journal]
+    - id: excuse
+      label: Excuse yourself from the table
+      goto: inn_responds
+      requires:
+        not_items: [forbidden_journal]
+      result_text: Nobody stops you. Nobody looks up. The inn creaks, as if it's making a note.
+
+dinner_caught:
+  title: What's Under Your Coat?
+  text: |
+    You push back your chair. The journal shifts under your coat, and the
+    corner of blue leather peeks out.
+
+    Sable's eyes go straight to it. Of course they do. She once spotted a
+    counterfeit coin from across a crowded market.
+
+    "What's that?" she says. "Under your coat."
+
+    Fennick stops chewing. The candles stop flickering. Even the soup is
+    listening.
+  choices:
+    - id: lie_about_journal
+      label: '"It''s a book. About soup."'
+      goto: inn_responds
+      sets_flags: [told_a_lie]
+      result_text: |
+        Sable doesn't believe you, and she lets you see that she doesn't believe
+        you. As you leave, something deep in the walls creaks disapprovingly,
+        and a picture frame in the hall turns itself to face the wall.
+    - id: promise_later
+      label: '"Not now. After dinner. I promise."'
+      goto: inn_responds
+      sets_flags: [promised_later]
+      result_text: |
+        Sable holds your gaze for a long moment, then nods. "After dinner." The
+        lamps in the hall brighten, very slightly, as you pass.
+    - id: ink_the_napkin
+      label: Dab a drop of memory ink on Sable's napkin
+      goto: dinner_caught
+      requires:
+        roles: [scholar]
+        items: [memory_ink]
+        not_flags: [inked_the_napkin]
+      sets_flags: [inked_the_napkin]
+      result_text: |
+        Sable dabs her mouth with the napkin, blinks, and looks around the room
+        as if she's just walked in. Then her eyes land on your coat. "What's
+        that?" she says. "Under your coat." Memory ink, it turns out, doesn't
+        change what people notice. Only what they remember noticing.
+
+inn_responds:
+  title: The Inn Has Opinions
+  text: |
+    The hallway outside the dining room is not the hallway you walked down
+    to get there.
+
+    The doors have swapped places. The staircase now goes down to go up. A
+    portrait of a stern woman in an apron follows you with her eyes, and then,
+    when you look back, with her whole frame. Every corridor you try curves
+    gently back toward the dining room, like a hint that isn't being subtle.
+
+    From somewhere ahead, you hear Sable and Fennick. They are, unmistakably,
+    arguing. From somewhere to the left comes the smell of burnt toast and a
+    small, frustrated fizzing noise.
+
+    The inn, it seems, has opinions. And it has decided to share them.
+  choices:
+    - id: to_kitchen_fizz
+      label: Follow the smell of burnt toast
+      goto: kitchen_attempt
+    - id: strange_window
+      label: Look through the window that wasn't there before
+      goto: mumbling_window
+      requires:
+        roles: [scholar]
+        quests_active: [faulty_memory]
+    - id: follow_argument
+      label: Follow the sound of your friends arguing
+      goto: grand_revelation
+      result_text: |
+        The corridor straightens itself out the moment you choose, as if
+        relieved. It leads you, very directly, back to the innkeeper's study.
+
+kitchen_attempt:
+  title: The Reversal
+  text: |
+    Fennick is in the kitchen, sleeves rolled up, wand out, facing the copper
+    kettle like a duellist. Chalk equations cover the table, the floor and
+    one of the cats.
+
+    "I'm fine," he says, without turning around. "I'm just trying something."
+
+    He flicks the wand. The kettle shudders, glows, and sprouts a small grey
+    moustache. It looks furious about it.
+
+    "That," says Fennick weakly, "is progress."
+  choices:
+    - id: check_equations
+      label: Check Fennick's equations
+      goto: kitchen_attempt
+      requires:
+        roles: [scholar]
+        not_flags: [checked_equations]
+      sets_flags: [checked_equations]
+      result_text: |
+        You spot the mistake almost at once: he's been reversing the spell
+        *forwards*. He fixes it and tries again. The moustache grows eyebrows
+        to match. "Closer," Fennick breathes. "It needs something else. It's
+        like the magic's stuck. Like the whole inn is holding its breath."
+    - id: try_reversal
+      label: Try the reversal spell yourself
+      goto: kitchen_attempt
+      requires:
+        roles: [mage]
+        not_flags: [checked_equations]
+      sets_flags: [checked_equations]
+      result_text: |
+        You know this spell better than anyone. You wrote it. It still doesn't
+        work. The kettle grows eyebrows to match the moustache. The magic feels
+        stuck, like the whole inn is holding its breath.
+    - id: leave_fennick
+      label: Leave Fennick to it
+      goto: inn_responds
+      result_text: '"Tell the others I''m fine," Fennick calls after you. The kettle whistles something that sounds a lot like "he isn''t".'
+
+mumbling_window:
+  title: A Window onto Little Mumbling
+  text: |
+    The window wasn't there a minute ago. It looks out, impossibly, onto a
+    sunny village square that you would know anywhere: Little Mumbling.
+
+    It's market day. The baker is arguing with the cheesemonger. Children are
+    chasing a goose. In the town hall window hangs a calendar: *Monday,
+    Wednesday, Thursday, Friday.* Nobody seems to find this strange.
+
+    Nobody down there remembers the ink, or the demonstration, or the lost
+    year of Tuesdays. Nobody remembers **you**. They look happy.
+
+    The glass is warm under your hand. The inn is waiting to see what you do.
+  choices:
+    - id: let_it_lie
+      label: Let sleeping dogs lie
+      goto: inn_responds
+      completes_quests: [faulty_memory]
+      sets_flags: [let_it_lie]
+      result_text: |
+        You let the curtain fall. Some things are kinder forgotten. Probably.
+        Behind you, the window quietly turns back into a wall.
+    - id: make_it_right
+      label: Promise yourself you'll go back and make it right
+      goto: inn_responds
+      completes_quests: [faulty_memory]
+      sets_flags: [make_it_right]
+      result_text: |
+        You press your hand to the glass. Someday, somehow, you'll give them
+        their Tuesdays back. The window fogs over, and in the fog, in loopy
+        handwriting, someone has written: *Good.*

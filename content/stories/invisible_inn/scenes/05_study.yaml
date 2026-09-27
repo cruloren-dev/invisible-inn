@@ -26,12 +26,16 @@ innkeeper_study:
       goto: crystal_message
       requires:
         not_quests_done: [why_innkeeper_left]
-    - id: call_everyone
-      label: Call everyone together. It's time to talk.
-      goto: grand_revelation
+    - id: dinner_bell
+      label: Answer the dinner bell
+      goto: dining_room
       requires:
         quests_done: [why_innkeeper_left]
       show_locked: true   # greyed out until you've heard the innkeeper's message
+      result_text: |
+        Somewhere below, a dinner bell rings. It rings again, more insistently.
+        The study door unlocks itself and swings open, the way a parent holds
+        open a door for a child who is going to Say Sorry.
     - id: back_to_hall
       label: Back to the main hall
       goto: main_hall

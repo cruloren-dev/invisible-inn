@@ -107,6 +107,17 @@ def meets(req: Requirements, state: GameState) -> bool:
     )
 
 
+def quest_visible(story: Story, state: GameState, quest_id: str) -> bool:
+    """Shared quests are visible to everyone; a secret quest only to a party with its role.
+
+    The story can still start and complete another role's secret quest (e.g. the
+    Rogue's, while the Rogue is a background character); the Scholar just never
+    sees it, in /quests or in scene announcements.
+    """
+    quest = story.quests.get(quest_id)
+    return quest is not None and (not quest.role or quest.role in state.roles)
+
+
 def visible_quests(story: Story, state: GameState) -> tuple[list[Quest], list[Quest]]:
     """(active, completed) quests this party can see, in the order they were discovered.
 
@@ -116,7 +127,7 @@ def visible_quests(story: Story, state: GameState) -> tuple[list[Quest], list[Qu
     active, completed = [], []
     for quest_id, status in state.quests.items():
         quest = story.quests.get(quest_id)
-        if quest is None or (quest.role and quest.role not in state.roles):
+        if quest is None or not quest_visible(story, state, quest_id):
             continue
         (completed if status == QUEST_COMPLETED else active).append(quest)
     return active, completed

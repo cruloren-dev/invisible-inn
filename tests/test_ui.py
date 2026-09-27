@@ -92,6 +92,23 @@ class RenderTests(unittest.IsolatedAsyncioTestCase):
         embed, _ = self.ui.render_scene(self.story, result.state, 1, result)
         self.assertIn("Quest complete", next(f for f in embed.fields if f.name == "Quests").value)
 
+    async def test_other_roles_secret_quests_are_not_announced(self):
+        from invisible_inn.engine import ChoiceResult
+        state = engine.GameState("foyer", roles=["rogue"], quests={"decode_the_sign": engine.QUEST_ACTIVE,
+                                                                   "find_the_innkeeper": engine.QUEST_ACTIVE})
+        scene = self.story.scene("foyer")
+        result = ChoiceResult(state=state, scene=scene, chosen=scene.choices[0], gained=(), lost=(),
+                              quests_started=("decode_the_sign", "find_the_innkeeper"))
+        embed = self.ui.scene_embed(self.story, state, result)
+        quests = next(f for f in embed.fields if f.name == "Quests").value
+        self.assertIn("Who Runs This Place?", quests)
+        self.assertNotIn("Vanishing Letters", quests, "the Scholar's secret quest must not leak to the Rogue")
+
+        result = ChoiceResult(state=state, scene=scene, chosen=scene.choices[0], gained=(), lost=(),
+                              quests_completed=("decode_the_sign",))
+        embed = self.ui.scene_embed(self.story, state, result)
+        self.assertNotIn("Quests", [f.name for f in embed.fields], "nothing visible, so no Quests box")
+
     async def test_quests_card(self):
         empty = self.ui.quests_embed(self.story, engine.new_game(self.story, ["scholar"]))
         self.assertIn("haven't discovered any quests", empty.description)

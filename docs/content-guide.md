@@ -78,8 +78,12 @@ starts it. Choices start and complete quests (see the next section), and each
 change is announced under the next scene ("📜 New quest: …" / "✅ Quest
 complete: …").
 
-- A quest with a `role` is a **secret quest**. Only players of that role see it
-  in `/quests`.
+- A quest with a `role` is a **secret quest** (a private achievement). Only
+  players of that role see it, in `/quests` and in the "📜 New quest" line under a
+  scene. The story can still start and complete another role's secret quest.
+  For example, Sable's *Clear the Air* completes when she confesses, even in a
+  Scholar's game, but the Scholar never sees it. It's already in place for
+  when the Rogue is playable.
 - A choice can complete a quest that was never started. It then goes straight
   into the completed list.
 - The validator warns about quests that nothing starts or completes.

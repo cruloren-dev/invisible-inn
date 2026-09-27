@@ -22,6 +22,7 @@ guest_book_parlor:
       requires:
         not_flags: [asked_sable]
       sets_flags: [asked_sable]
+      starts_quests: [clear_the_air]   # Sable's (the Rogue's) secret quest; a Scholar never sees it
       result_text: |
         "Nothing," says Sable, far too quickly. Then: "Hypothetically, if an
         inn had a vault, where would it be?" She won't say anything else about

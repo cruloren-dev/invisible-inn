@@ -40,6 +40,7 @@ library_chaos:
         not_flags: [visited_archive]
       show_locked: true   # greyed out until you've spotted the shelf mark in the guest book
       sets_flags: [visited_archive]
+      starts_quests: [faulty_memory]
     - id: fennick_shelf
       label: Pull Fennick away from his shelf
       goto: library_chaos
@@ -71,16 +72,42 @@ scholar_archive:
     and then used a drop of the ink on yourself so you'd stop thinking about
     it. It's a very *you* solution. You hate it.
 
+    The last page is dated this year, in handwriting you don't remember
+    using: *"Little Mumbling still has no idea I was ever there. Nobody
+    remembers the ink. Nobody remembers me. Is that a kindness?"*
+
+    Beside the journal stands a tiny glass vial, stoppered with wax. The ink
+    inside shimmers.
+
     Out in the library, Sable calls your name.
   choices:
     - id: take_journal
       label: Take the journal
-      goto: library_chaos
+      goto: scholar_archive
+      requires:
+        not_items: [forbidden_journal]
       gives: [forbidden_journal]
       starts_quests: [restore_research]
       result_text: The journal is warm, like it's been waiting. You tuck it under your coat. Nobody saw. Probably.
-    - id: leave_journal
-      label: Put it back and walk away. Briskly.
+    - id: take_vial
+      label: Pocket the vial of memory ink
+      goto: scholar_archive
+      requires:
+        not_items: [memory_ink]
+      gives: [memory_ink]
+      starts_quests: [remember_me]
+      result_text: |
+        It's cold, and heavier than something that small should be. One drop
+        and anything could be forgotten. You try very hard not to make a list.
+    - id: back_to_library
+      label: Back to the library
       goto: library_chaos
-      sets_flags: [left_journal]
-      result_text: You put it back. You walk away briskly. The shelf makes a small, disappointed noise.
+      requires:
+        items: [forbidden_journal]
+      result_text: You leave the archive quickly, and the Restricted door clicks shut behind you.
+    - id: leave_everything
+      label: Put everything back and walk away. Briskly.
+      goto: library_chaos
+      requires:
+        not_items: [forbidden_journal]
+      result_text: You walk away briskly. The shelf makes a small, disappointed noise.

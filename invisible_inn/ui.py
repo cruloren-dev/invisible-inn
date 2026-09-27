@@ -18,7 +18,9 @@ from typing import TYPE_CHECKING
 import discord
 
 from .content.models import Story
-from .engine import ChoiceResult, GameState, choice_label, options_for, scene_text, visible_quests
+from .engine import (
+    ChoiceResult, GameState, choice_label, options_for, quest_visible, scene_text, visible_quests,
+)
 
 if TYPE_CHECKING:
     from .cogs.adventure import Adventure
@@ -173,9 +175,11 @@ def scene_embed(story: Story, state: GameState, result: ChoiceResult | None = No
         lines = [f"➕ {story.item_name(i)}" for i in result.gained]
         lines += [f"➖ {story.item_name(i)}" for i in result.lost]
         embed.add_field(name="Inventory", value="\n".join(lines), inline=False)
-    if result and (result.quests_started or result.quests_completed):
-        lines = [f"📜 New quest: **{story.quest_title(q)}**" for q in result.quests_started]
-        lines += [f"✅ Quest complete: **{story.quest_title(q)}**" for q in result.quests_completed]
+    started = [q for q in result.quests_started if quest_visible(story, state, q)] if result else []
+    completed = [q for q in result.quests_completed if quest_visible(story, state, q)] if result else []
+    if started or completed:
+        lines = [f"📜 New quest: **{story.quest_title(q)}**" for q in started]
+        lines += [f"✅ Quest complete: **{story.quest_title(q)}**" for q in completed]
         lines.append("-# See your quests with /quests")
         embed.add_field(name="Quests", value="\n".join(lines), inline=False)
 

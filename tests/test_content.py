@@ -129,6 +129,31 @@ class ValidationTests(unittest.TestCase):
         self.assertIn("find: no choice completes this quest", joined)
         self.assertIn("unused: no choice starts or completes", joined)
 
+    def test_complementary_choices_do_not_warn_about_getting_stuck(self):
+        items = "key: {name: Key}\n"
+        _, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: a, label: A, goto: end, requires: {items: [key]}}
+                - {id: b, label: B, goto: end, requires: {not_items: [key]}}
+            end: {title: End, text: Bye, ending: true}
+        """, items)
+        self.assertEqual([w for w in report.warnings if "stuck" in w], [])
+
+    def test_unmatched_conditions_still_warn_about_getting_stuck(self):
+        _, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: a, label: A, goto: end, requires: {items: [key]}}
+                - {id: b, label: B, goto: end, requires: {flags: [f]}}
+            end: {title: End, text: Bye, ending: true}
+        """, "key: {name: Key}\n")
+        self.assertTrue([w for w in report.warnings if "stuck" in w])
+
     def test_reports_no_playable_role(self):
         story, report = self.load("""
             start: {title: End, text: Bye, ending: true}
