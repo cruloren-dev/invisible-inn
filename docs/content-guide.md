@@ -99,6 +99,9 @@ foyer:
 ```
 
 - `text: |`: the `|` lets you write several lines. Indent the text under it.
+- **Line breaks:** lines are joined into paragraphs, so wrap lines wherever you
+  like. Leave a **blank line** to start a new paragraph. Lists (`- item`) and
+  quotes (`> line`) keep their shape.
 - Scene text can be up to 4,000 characters. For anything longer, split it into two scenes.
 - An ending scene has `ending: true` and no choices.
 
@@ -129,7 +132,7 @@ so write `text` so it works for everyone.
 | `label` | yes | Button text players see (max 80 characters) |
 | `goto` | yes | Id of the scene this leads to (can be the same scene) |
 | `description` | no | Hint shown under the option in dropdown menus (max 100) |
-| `result_text` | no | A line shown at the top of the next scene, e.g. "The lock clicks." |
+| `result_text` | no | What happens when this is chosen, e.g. "The lock clicks." It's shown in italics at the **bottom** of the next scene, below a `---` line. Don't add your own `*` italics here: the whole thing is italic already |
 | `gives` | no | Items added to the player's inventory |
 | `takes` | no | Items removed from the player's inventory |
 | `sets_flags` | no | Flags to remember (see below) |

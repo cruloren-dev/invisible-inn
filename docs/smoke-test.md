@@ -99,6 +99,8 @@ Scholar. There's no fixed script. Check that:
 | # | Check | ✅ Expected |
 |---|---|---|
 | 1 | `/start` | Role card: **Scholar** is clickable. Rogue and Mage are grey "(coming soon)" |
+| 1a | **[Scholar] Study the shimmering doorframe** | The storm scene again, then a `---` line and the doorframe text at the bottom, all in italics, with no stray `*` |
+| 1b | **Knock**, then **Step back outside into the storm** | Back at *A Very Rude Storm*, with the storm line at the bottom |
 | 2 | Play through to an ending | Every scene has a way forward. Locked choices (STAFF ONLY, the Restricted section, *Call everyone together*) unlock as described in their scenes |
 | 3 | `/quests` along the way | *The Inn's Chaotic History* and *The Empty Front Desk* appear only once introduced. The Scholar's secret *The Forbidden Research* appears after taking the journal |
 | 4 | Replay with different choices | Three endings: confess (secret quest completes), keep the secret (quest stays in progress) and never take the journal |

@@ -115,6 +115,35 @@ class RenderTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(len(f.value) <= 1024 for f in embed.fields))
         self.assertIn("Completed", [f.name for f in embed.fields])
 
+    async def test_result_text_goes_at_the_bottom_in_italics(self):
+        state = engine.new_game(self.story)
+        result = engine.choose(self.story, state, "step_in")
+        result = engine.choose(self.story, result.state, "take_key")
+        text = self.ui.scene_embed(self.story, result.state, result).description
+        scene_part, outcome = text.split("\n\n---\n\n")
+        self.assertTrue(scene_part.startswith("The moment you cross the threshold"))
+        self.assertEqual(outcome, "*You lift the key from its hook. Nobody stops you.*")
+
+    async def test_italicise_handles_asterisks_and_line_breaks(self):
+        text = 'The frame says *"Shelter for those who\nneed it."* Also: **wipe your feet**.\n\nSecond line.'
+        self.assertEqual(self.ui.italicise(text),
+                         '*The frame says "Shelter for those who need it." Also: **wipe your feet**.*\n\n'
+                         '*Second line.*')
+
+    async def test_reflow_joins_wrapped_lines_but_keeps_structure(self):
+        text = "One line\nwrapped.\n\n> quoted\n> text\n>\n> more\n\n- item one\n- item two"
+        self.assertEqual(self.ui.reflow(text),
+                         "One line wrapped.\n\n> quoted text\n> more\n\n- item one\n- item two")
+
+    async def test_long_scene_text_is_trimmed_but_result_text_is_kept(self):
+        from invisible_inn.content.models import Choice, Scene, Story
+        scene = Scene("s", "S", "word " * 900, (Choice("go", "Go", "s", result_text="It happened."),))
+        story = Story("t", "T", "", "s", {"s": scene}, {})
+        result = engine.choose(story, engine.new_game(story), "go")
+        text = self.ui.scene_embed(story, result.state, result).description
+        self.assertLessEqual(len(text), 4096)
+        self.assertTrue(text.endswith("*It happened.*"))
+
     async def test_cog_module_imports(self):
         import invisible_inn.client  # noqa: F401
         import invisible_inn.cogs.adventure  # noqa: F401
