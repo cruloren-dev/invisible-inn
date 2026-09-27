@@ -1,13 +1,13 @@
-# Every item in the story. The key (e.g. brass_key) is the id that scenes use.
+# Every item in the story. DRAFT: edit freely.
 
-brass_key:
-  name: Brass Key
-  description: Warm to the touch, as if someone was holding it a moment ago.
+welcome_scroll:
+  name: Welcome Scroll
+  description: '"Tend to the inn, and the inn will tend to you." Signed with a flourish and a small drawing of a teacup.'
 
-cuff_cipher:
-  name: Cipher on Your Cuff
-  description: The sign's vanishing letters, scribbled in ink on your sleeve.
+guest_book:
+  name: Guest Book
+  description: A century of reviews, most of them glowing, one of them literally.
 
-lantern:
-  name: Glass Lantern
-  description: Its flame is visible even when the lantern isn't.
+forbidden_journal:
+  name: Journal in Your Handwriting
+  description: Bound in blue leather and written in a cipher only you could have invented. You'd rather nobody asked about it.

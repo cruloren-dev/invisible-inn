@@ -1,0 +1,70 @@
+# Milestone 4: The Innkeeper's Dramatic Departure. DRAFT: edit freely.
+
+innkeeper_study:
+  title: The Innkeeper's Study
+  text: |
+    The study looks like it was abandoned mid-sentence. A cup of tea is
+    still warm. A cardigan hangs over the chair. Every surface is covered in
+    sticky notes, and the sticky notes are covered in sticky notes.
+
+    On the desk, a glass crystal glows softly on a little stand. A label
+    tied to it says: *PLAY ME. (Tap twice. Not three times. We don't talk
+    about three times.)*
+  choices:
+    - id: read_notes
+      label: Read the sticky notes
+      goto: innkeeper_study
+      requires:
+        not_flags: [read_notes]
+      sets_flags: [read_notes]
+      result_text: |
+        *"Feed the stairs on Thursdays." "Room 9 is allergic to optimism."
+        "The vault is NOT a metaphor, stop asking." "Kettle: be kind, he's had
+        a hard decade."* Sable reads the vault one three times.
+    - id: tap_crystal
+      label: Tap the crystal twice
+      goto: crystal_message
+      requires:
+        not_quests_done: [why_innkeeper_left]
+    - id: call_everyone
+      label: Call everyone together. It's time to talk.
+      goto: grand_revelation
+      requires:
+        quests_done: [why_innkeeper_left]
+      show_locked: true   # greyed out until you've heard the innkeeper's message
+    - id: back_to_hall
+      label: Back to the main hall
+      goto: main_hall
+
+crystal_message:
+  title: A Message from Madame Thistlewick
+  text: |
+    The crystal flickers, and a small, glowing woman in a dressing gown
+    appears above the desk. She's holding a suitcase in one hand and a
+    slice of toast in the other.
+
+    *"Oh good, it's working. Hello, new keepers!*
+
+    *"You're probably wondering why I left. Honestly? Forty years is a long
+    time to run an inn that rearranges itself. I've always wanted to be a
+    lighthouse keeper. Lighthouses stay where you put them.*
+
+    *"The inn chose you. That's how it works. It finds people who are
+    carrying something heavy, and it doesn't settle until they've put it
+    down. Every one of you walked in with a secret. The inn knows. It
+    always knows. It will get very awkward until you talk about it.*
+
+    *"Also, it's still deciding about one of you. No pressure.*
+
+    *"Toast's on. Bye!"*
+
+    The image waves, bites the toast and vanishes. Behind you, very
+    quietly, the study door locks itself.
+  choices:
+    - id: let_it_sink_in
+      label: Let that sink in
+      goto: innkeeper_study
+      completes_quests: [why_innkeeper_left]
+      result_text: |
+        Sable is looking at Fennick. Fennick is looking at the floor. You
+        realise they're both waiting for somebody else to go first.

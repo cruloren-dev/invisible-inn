@@ -1,26 +1,32 @@
-# Story settings. See docs/content-guide.md for every option.
+# The Invisible Inn: v1 playable slice (Scholar path). See docs/content-guide.md.
 #
-# NOTE: this is SAMPLE content that demonstrates the file format.
-# Writers should replace it with the real story.
+# DRAFT by Claude from docs/story-and-mechanics-design.md, for the project
+# manager to edit. PLACEHOLDERS to replace:
+#   - Sable ........... the Rogue's name (she/her)
+#   - Fennick ......... the Mage's name (he/him)
+#   - Madame Thistlewick, the innkeeper who left
+#   - Little Mumbling . the town that forgot Tuesdays (the Scholar's past)
+#   - Memory ink ...... the Scholar's forbidden research
+#   - The kettle ...... Fennick's mentor (his secret, hinted at here)
+#   - The vault ....... Sable's secret, hinted at here
 
 title: The Invisible Inn
-description: A short sample adventure. Find the inn that nobody can see.
-start_scene: arrival
+description: >-
+  Three old friends, one very rude storm, and an inn that only appears to
+  people who need it.
+start_scene: arrival_storm
 
-# Group play isn't built yet; version 1 is solo. These are read and validated
-# now so stories can declare their intended party size ahead of time.
 min_players: 1
 max_players: 1
 
-# The characters players choose between when a game starts. Leave this out for
-# a story without roles. `playable: false` shows a role as "coming soon".
 roles:
   scholar:
     name: Scholar
-    description: Knows a little about everything, and a lot about footnotes.
+    description: Knows a little about everything, a lot about footnotes, and nothing at all about what happened in Little Mumbling. Officially.
   rogue:
     name: Rogue
     description: Can open any lock, except the one on her own past.
+    playable: false
   mage:
     name: Mage
     description: Half-finished spells and wholly unfinished business.

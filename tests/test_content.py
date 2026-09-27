@@ -4,14 +4,19 @@ from pathlib import Path
 
 from invisible_inn.content import LoadReport, load_all, load_story
 
-from .helpers import CONTENT_DIR, write_story
+from .helpers import CONTENT_DIR, REAL_CONTENT_DIR, write_story
 
 
 class SampleContentTests(unittest.TestCase):
-    def test_bundled_stories_are_valid(self):
+    def test_sample_story_is_valid(self):
         report = load_all(CONTENT_DIR)
         self.assertEqual(report.errors, [])
         self.assertIn("invisible_inn", report.stories)
+
+    def test_real_stories_are_valid(self):
+        report = load_all(REAL_CONTENT_DIR)
+        self.assertEqual(report.errors, [])
+        self.assertTrue(report.stories)
 
 
 class ValidationTests(unittest.TestCase):

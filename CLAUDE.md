@@ -100,10 +100,13 @@ about Discord. Keep it this way so game logic stays unit-testable.
 - **New content fields:** add them to the model, the loader's allowed-keys sets
   (`CHOICE_KEYS` / `SCENE_KEYS`) and validation, `docs/content-guide.md`, and tests.
   The loader rejects unknown keys on purpose, to catch writer typos.
-- **Sample content:** `content/stories/invisible_inn/` is placeholder content that
-  shows every feature. Tests depend on its scene and choice ids (`arrival`,
-  `foyer`, `take_key`, `green_door`, …). If writers replace it, move the tests to a
-  fixture story under `tests/`.
+- **Sample vs real content:** tests use the sample story in
+  `tests/fixtures/stories/invisible_inn/` (`tests/helpers.CONTENT_DIR`), which
+  shows every feature. Tests depend on its ids (`arrival`, `foyer`, `take_key`,
+  `green_door`, …). The **real story** is in `content/stories/invisible_inn/`. It's
+  the owner's (drafted by Claude, edited by the owner), so don't change its text
+  without being asked. Tests only check that it's valid (`REAL_CONTENT_DIR`). New
+  content features need an example in the sample story.
 - **Tests** use `unittest` (with `IsolatedAsyncioTestCase` for async) and run
   under pytest. Discord-facing tests use fake interaction objects; see
   `tests/test_adventure_flow.py`.
@@ -132,10 +135,15 @@ back to the game's channel. Story and mechanics design is agreed: see
 and labelled choices, and `role_text`. **Quests** (PR #7): `quests.yaml`,
 `starts_quests` / `completes_quests`, quest requirements and `/quests`.
 
+**Content** (PR #9): the sample story moved to `tests/fixtures`. The Scholar
+playable slice is drafted in `content/stories/invisible_inn/` (15 scenes, 3
+endings, 3 quests). Placeholder names are listed at the top of its `story.yaml`.
+
 **Next: v1 (solo), roughly in order:**
-1. **Content:** move the sample story to a test fixture, then draft the Scholar
-   playable slice for the owner to edit.
-2. Finish the live smoke test with the new content.
+1. The owner edits the Scholar slice text and replaces the placeholders. It's
+   ~15–20 minutes of play against a 20–30 minute target; the natural place to add
+   more is Milestones 6–7 (the dining-room conflict, the inn responding).
+2. Finish the live smoke test (`docs/smoke-test.md` sections 3 and 4).
 
 **After v1:** multiplayer (v1.1, see the design doc's v1 scope box and the open
 questions in `docs/architecture.md`), then **Railway deployment**, which needs a

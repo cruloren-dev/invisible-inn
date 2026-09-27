@@ -1,0 +1,86 @@
+# Milestone 3 (the library) and Milestone 5 (the Scholar's secret). DRAFT: edit freely.
+# The Rogue and Mage will get their own secret rooms here in later versions.
+
+library_chaos:
+  title: The Library
+  text: |
+    The humming door opens onto a library that goes up further than you can
+    see. The books are rearranging themselves: sliding along shelves,
+    swapping places, occasionally arguing.
+
+    Three shelves seem to lean toward the three of you. Sable drifts toward
+    one labelled *Treasures Best Left Unfound*. Fennick stops dead in front
+    of *Spells You Should Never Have Started*. The one nearest you says
+    *Research That Was Banned for Very Good Reasons*.
+
+    "The inn," says Fennick, "is being *extremely* rude."
+  role_text:
+    scholar: |
+      The humming door opens onto a library that goes up further than you can
+      see, and for a moment you forget the storm, your friends and your own
+      name. The books are rearranging themselves: sliding along shelves,
+      swapping places, occasionally arguing about classification. You find
+      yourself agreeing with the one on the left.
+
+      Three shelves seem to lean toward the three of you. Sable drifts toward
+      one labelled *Treasures Best Left Unfound*. Fennick stops dead in front
+      of *Spells You Should Never Have Started*. The one nearest you says
+      *Research That Was Banned for Very Good Reasons*.
+
+      At the far end, behind a velvet rope, a door is marked **RESTRICTED**.
+
+      "The inn," says Fennick, "is being *extremely* rude."
+  choices:
+    - id: follow_shelf_mark
+      label: Follow the shelf mark to the Restricted section
+      goto: scholar_archive
+      requires:
+        roles: [scholar]
+        flags: [saw_own_entry]
+        not_flags: [visited_archive]
+      show_locked: true   # greyed out until you've spotted the shelf mark in the guest book
+      sets_flags: [visited_archive]
+    - id: fennick_shelf
+      label: Pull Fennick away from his shelf
+      goto: library_chaos
+      requires:
+        not_flags: [pulled_fennick]
+      sets_flags: [pulled_fennick]
+      result_text: |
+        "I wasn't reading it," Fennick says. "I was just... checking whether
+        it's possible to un-kettle someone. Academically. For a friend."
+    - id: back_to_hall
+      label: Back to the main hall
+      goto: main_hall
+
+scholar_archive:
+  title: Restricted Section, Shelf 12-B
+  text: |
+    The Restricted section is small, dusty and clearly never dusted, as
+    requested. On shelf 12-B sits a single journal bound in blue leather.
+
+    You know it before you open it. The cipher is yours. The handwriting is
+    yours. The research is the thing you swore you'd burned: **memory ink**,
+    the ink that makes people forget whatever it's written about.
+
+    It worked beautifully, right up until the demonstration in Little
+    Mumbling, when the whole town forgot Tuesdays. For a year. The Guild
+    banned the research. You promised you'd destroyed every page.
+
+    Apparently you came here twelve years ago, wrote it all down again,
+    and then used a drop of the ink on yourself so you'd stop thinking about
+    it. It's a very *you* solution. You hate it.
+
+    Out in the library, Sable calls your name.
+  choices:
+    - id: take_journal
+      label: Take the journal
+      goto: library_chaos
+      gives: [forbidden_journal]
+      starts_quests: [restore_research]
+      result_text: The journal is warm, like it's been waiting. You tuck it under your coat. Nobody saw. Probably.
+    - id: leave_journal
+      label: Put it back and walk away. Briskly.
+      goto: library_chaos
+      sets_flags: [left_journal]
+      result_text: You put it back. You walk away briskly. The shelf makes a small, disappointed noise.
