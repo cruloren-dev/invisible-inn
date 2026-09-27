@@ -12,6 +12,7 @@ custom_id formats (Discord allows up to 100 characters):
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 import discord
@@ -153,10 +154,15 @@ def build_choice_view(story: Story, state: GameState, session_id: int) -> discor
 
 def scene_embed(story: Story, state: GameState, result: ChoiceResult | None = None) -> discord.Embed:
     scene = story.scene(state.scene_id)
-    text = scene_text(scene, state)
+    text = reflow(scene_text(scene, state))
     if result and result.chosen.result_text:
-        text = f"*{result.chosen.result_text.strip()}*\n\n{text}"
-    if len(text) > EMBED_DESCRIPTION_LIMIT:
+        # What happened goes at the bottom, below a divider, so players don't have to scroll up.
+        outcome = f"{RESULT_DIVIDER}{italicise(result.chosen.result_text)}"
+        room = EMBED_DESCRIPTION_LIMIT - len(outcome)
+        if len(text) > room:
+            text = text[: room - 1] + "…"
+        text += outcome
+    elif len(text) > EMBED_DESCRIPTION_LIMIT:
         text = text[: EMBED_DESCRIPTION_LIMIT - 1] + "…"
 
     embed = discord.Embed(
@@ -184,6 +190,49 @@ def scene_embed(story: Story, state: GameState, result: ChoiceResult | None = No
 
 def party_text(story: Story, state: GameState) -> str:
     return "Playing as " + " & ".join(story.role_name(r) for r in state.roles)
+
+
+RESULT_DIVIDER = "\n\n---\n\n"
+_LIST_OR_HEADING = re.compile(r"\s*([-*+] |\d+\. |#)")
+_SINGLE_ASTERISK = re.compile(r"(?<!\*)\*(?!\*)")
+
+
+def reflow(text: str) -> str:
+    """Join the lines of each paragraph, like Markdown does.
+
+    Writers wrap lines in YAML to keep them readable, but Discord shows every
+    line break, which looks ragged on narrow screens. A blank line still starts a
+    new paragraph. Lists and headings keep their line breaks, and each block of
+    quoted lines (``> …``) is joined into one quote line per paragraph.
+    """
+    out = []
+    for para in re.split(r"\n\s*\n", text.strip()):
+        lines = [line.rstrip() for line in para.split("\n")]
+        if all(line.lstrip().startswith(">") for line in lines):
+            quotes: list[list[str]] = [[]]
+            for line in lines:
+                body = line.lstrip()[1:].strip()
+                if body:
+                    quotes[-1].append(body)
+                elif quotes[-1]:
+                    quotes.append([])
+            out.append("\n".join("> " + " ".join(q) for q in quotes if q))
+        elif any(_LIST_OR_HEADING.match(line) for line in lines):
+            out.append("\n".join(lines))
+        else:
+            out.append(" ".join(line.strip() for line in lines))
+    return "\n\n".join(out)
+
+
+def italicise(text: str) -> str:
+    """Put text in italics, one paragraph at a time.
+
+    Italics can't span line breaks in Discord, and single asterisks inside the
+    text would switch italics off part-way, so those are removed first (the whole
+    thing is italic anyway). Bold (``**``) is kept.
+    """
+    paras = reflow(_SINGLE_ASTERISK.sub("", text)).split("\n\n")
+    return "\n\n".join(p if p.startswith(">") else f"*{p}*" for p in paras)
 
 
 def render_scene(story: Story, state: GameState, session_id: int,

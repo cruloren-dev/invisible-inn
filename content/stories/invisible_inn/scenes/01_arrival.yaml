@@ -81,6 +81,12 @@ foyer_arrival:
     - id: go_deeper
       label: Head deeper into the inn
       goto: main_hall
+    - id: back_outside
+      label: Step back outside into the storm
+      goto: arrival_storm
+      result_text: |
+        You poke your head back out. The storm is still there, and still rude.
+        The slippers by the door watch you go with visible disappointment.
 
 kitchen:
   title: The Kitchen
