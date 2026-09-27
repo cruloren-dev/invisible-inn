@@ -6,7 +6,7 @@
 
 ## The Invisible Inn
 
-15 scenes · 3 items · 3 quests · roles: Scholar, Rogue (coming soon), Mage (coming soon)
+15 scenes · 3 items · 7 quests · roles: Scholar, Rogue (coming soon), Mage (coming soon)
 
 **How to read the diagram:** the slanted box is where the story starts, and rounded green boxes are endings. **Dotted arrows with 🔒** need something first (an item, flag or quest); solid arrows don't, though some disappear after they've been used once. "[Scholar]" marks a choice for one role. "↺ N actions here" counts choices that stay in the same scene. Arrow labels are shortened; the tables below have the full text and every condition.
 
