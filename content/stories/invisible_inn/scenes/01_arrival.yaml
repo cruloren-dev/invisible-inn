@@ -1,68 +1,116 @@
-# Scenes can be split across as many files as you like.
-# Each file maps scene ids to scenes (title, text, choices).
+# Milestone 1: Arrival at the Invisible Inn. DRAFT: edit freely.
 
-arrival:
-  title: A Gap in the Street
+arrival_storm:
+  title: A Very Rude Storm
   text: |
-    Fog rolls down Lantern Row. Between the bakery and the bookbinder's
-    there is a gap no wider than a doorway, and above it hangs a wooden
-    sign with nothing painted on it.
+    The storm has opinions, and all of them are about you.
 
-    From somewhere inside the gap you hear laughter, the clink of glasses,
-    and a fiddle playing slightly out of tune.
+    Rain comes sideways. Wind steals Fennick's hat for the third time. Sable
+    has stopped complaining, which is worse than when she was complaining.
+    The three of you haven't travelled together in years, and the weather
+    seems determined to remind you why.
+
+    Then, between one lightning flash and the next, there is a building
+    where there wasn't one: a crooked, cheerful inn with every window lit.
+    The sign above the door is blank. The door itself is ajar, as if
+    somebody just stepped out to check on you.
+
+    "That," says Fennick, dripping, "was *not* there a second ago."
+
+    "Good," says Sable. "Things that are there are usually locked."
   choices:
-    - id: step_in
-      label: Step toward the laughter
-      goto: foyer
-      starts_quests: [find_the_innkeeper]   # announced under the next scene; see /quests
-    - id: read_sign
-      label: Look closer at the blank sign
-      goto: sign
+    - id: knock
+      label: Knock on the door
+      goto: foyer_arrival
+      result_text: The door swings open before your knuckles land. It seems pleased to be asked.
+    - id: study_doorframe
+      label: Study the shimmering doorframe
+      goto: arrival_storm
       requires:
-        not_flags: [read_sign]   # disappears once you've read it
-    - id: leave
-      label: Walk away
-      goto: ending_walk_away
+        roles: [scholar]
+        not_flags: [noticed_wards]
+      sets_flags: [noticed_wards]
+      result_text: |
+        The frame is carved with old sanctuary wards, the kind you've only
+        seen in footnotes. They translate roughly as *"Shelter for those who
+        need it."* Underneath, in much newer letters: *"Wipe your feet."*
+    - id: sable_lock
+      label: Let Sable pick the lock
+      goto: foyer_arrival
+      result_text: |
+        Sable kneels, produces a lockpick from somewhere, and the door opens by
+        itself before she touches it. She looks deeply offended.
+    - id: keep_walking
+      label: Suggest you all keep walking
+      goto: arrival_storm
+      requires:
+        not_flags: [tried_leaving]
+      sets_flags: [tried_leaving]
+      result_text: |
+        Lightning strikes the exact spot you were about to step on. Then,
+        pointedly, the spot next to it. The inn's windows glow a little warmer.
+        Message received.
 
-sign:
-  title: The Blank Sign
+foyer_arrival:
+  title: The Foyer
   text: |
-    You breathe on the sign to wipe away the damp, and letters bloom in
-    the fog of your breath:
+    Warmth hits you like a hug from someone who's missed you. A fire crackles
+    in a hearth big enough to park a cart in. Three pairs of slippers wait by
+    the door, in exactly your sizes, which is lovely and also deeply alarming.
 
-    *THE INVISIBLE INN — Guests welcome, visible or otherwise.*
+    Fennick holds his hands to the fire and steams gently. Sable is already
+    checking the windows, and it's hard to tell if she's looking for exits or
+    for valuables. Somewhere deeper in the inn, something smells like toast.
 
-    The words fade as quickly as they appeared.
-  # A role's own version of the text, used instead of `text` for that role.
-  role_text:
-    scholar: |
-      You breathe on the sign to wipe away the damp, and letters bloom in
-      the fog of your breath:
-
-      *THE INVISIBLE INN — Guests welcome, visible or otherwise.*
-
-      The lettering is a condensation cipher, the kind you've only ever read
-      about in footnotes. Your fingers itch for a notebook.
+    There's a front desk, but nobody behind it. A small brass bell sits on
+    top with a note taped to it: *"Don't bother."*
   choices:
-    - id: back
-      label: Step back into the street
-      goto: arrival
-      sets_flags: [read_sign]
-    - id: copy_cipher
-      label: Copy the cipher before it fades
+    - id: warm_up
+      label: Warm up by the fire
+      goto: foyer_arrival
       requires:
-        roles: [scholar]         # only the Scholar sees this; shown as "[Scholar] Copy…"
-      result_text: You scribble the letters on your cuff. They'll keep.
-      goto: arrival
-      sets_flags: [read_sign]
-      starts_quests: [decode_the_sign]
-      gives: [cuff_cipher]
+        not_flags: [warmed_up]
+      sets_flags: [warmed_up]
+      result_text: |
+        The three of you stand at the fire in silence. "So," says Fennick
+        eventually. "How've you all been? Since... everything?" Nobody answers.
+        The fire pops, helpfully.
+    - id: follow_toast
+      label: Follow the smell of toast
+      goto: kitchen
+    - id: go_deeper
+      label: Head deeper into the inn
+      goto: main_hall
 
-ending_walk_away:
-  title: Another Night
-  ending: true
+kitchen:
+  title: The Kitchen
   text: |
-    You pull your coat tighter and head home. Behind you, the laughter
-    stops, and a door you never saw closes softly.
+    The kitchen is spotless and busy, and nobody is in it. A loaf slices
+    itself. Toast pops up, butters itself, and slides onto three plates.
 
-    Perhaps the inn will be there another night.
+    On the stove sits a copper kettle that is very clearly sulking. It
+    rattles its lid when Fennick walks in, and Fennick goes a shade paler.
+
+    "I'm sure it's a normal kettle," he says, to nobody. "Just a regular,
+    normal kettle."
+  choices:
+    - id: cheer_kettle
+      label: Say something nice to the kettle
+      goto: kitchen
+      requires:
+        not_flags: [kettle_cheered]
+      sets_flags: [kettle_cheered]
+      result_text: |
+        You tell the kettle it has a lovely shine. It whistles a happy little
+        tune, one that Fennick apparently recognises, because he drops his
+        toast. "That's— no. No. Coincidence."
+    - id: eat_toast
+      label: Eat the toast
+      goto: kitchen
+      requires:
+        not_flags: [ate_toast]
+      sets_flags: [ate_toast]
+      result_text: It's perfect. Of course it's perfect. Sable pockets a second slice "for later".
+    - id: back_to_foyer
+      label: Back to the foyer
+      goto: foyer_arrival

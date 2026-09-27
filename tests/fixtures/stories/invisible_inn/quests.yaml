@@ -1,0 +1,14 @@
+# Every quest in the story. Choices start and complete them with
+# `starts_quests` and `completes_quests`. Players see a quest in /quests only
+# once a choice has started it.
+#
+# NOTE: SAMPLE content. See docs/content-guide.md.
+
+find_the_innkeeper:
+  title: Who Runs This Place?
+  description: The inn seems to be open, but nobody is minding the desk.
+
+decode_the_sign:
+  title: The Vanishing Letters
+  description: The sign's lettering was a condensation cipher. Find someone who knows who wrote it.
+  role: scholar             # a secret quest: only the Scholar sees it

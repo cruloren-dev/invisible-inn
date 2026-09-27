@@ -2,7 +2,10 @@ from pathlib import Path
 from textwrap import dedent
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-CONTENT_DIR = REPO_ROOT / "content" / "stories"
+# Tests play the sample story in tests/fixtures, which shows every content feature,
+# so writers can change the real story in content/stories freely.
+CONTENT_DIR = REPO_ROOT / "tests" / "fixtures" / "stories"
+REAL_CONTENT_DIR = REPO_ROOT / "content" / "stories"
 
 
 def write_story(root: Path, scenes_yaml: str, items_yaml: str = "", start: str = "start",

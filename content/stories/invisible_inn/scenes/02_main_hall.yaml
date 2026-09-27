@@ -1,0 +1,82 @@
+# Milestone 2: Welcome to the Abandoned Chaos. DRAFT: edit freely.
+# The main hall is the hub: every room in the slice is reached from here.
+
+main_hall:
+  title: The Main Hall
+  text: |
+    The main hall is tall, round and much bigger than the building looked
+    from outside. Doors line the walls, and a staircase spirals up past
+    floors that seem to rearrange themselves when you're not looking.
+
+    In the middle of the room, on a lectern, sits a rolled-up scroll tied
+    with a ribbon. Nothing else in the inn is tidy, so it stands out.
+
+    Three doors look promising: one marked **PARLOUR**, one that is gently
+    *humming*, and one marked **STAFF ONLY**. Sable has already tried that
+    one twice.
+  role_text:
+    scholar: |
+      The main hall is tall, round and much bigger than the building looked
+      from outside, which is the sort of thing you'd normally write a paper
+      about. Doors line the walls, and a staircase spirals up past floors that
+      rearrange themselves when you're not looking. You try very hard not to
+      start taking notes.
+
+      In the middle of the room, on a lectern, sits a rolled-up scroll tied
+      with a ribbon. Nothing else in the inn is tidy, so it stands out.
+
+      Three doors look promising: one marked **PARLOUR**, one that is gently
+      *humming* (a library, if you know that particular hum, and you do), and
+      one marked **STAFF ONLY**. Sable has already tried that one twice.
+  choices:
+    - id: read_scroll
+      label: Read the scroll on the lectern
+      goto: welcome_scroll
+      requires:
+        not_items: [welcome_scroll]
+      gives: [welcome_scroll]
+    - id: to_parlor
+      label: Try the door marked PARLOUR
+      goto: guest_book_parlor
+    - id: to_library
+      label: Try the humming door
+      goto: library_chaos
+    - id: to_study
+      label: Try the door marked STAFF ONLY
+      goto: innkeeper_study
+      requires:
+        quests_done: [decipher_history]
+      show_locked: true   # greyed out until you've pieced together the inn's history
+      starts_quests: [why_innkeeper_left]
+      result_text: The door that wouldn't open for Sable opens for you. Sable takes this personally.
+    - id: back_to_foyer
+      label: Back to the foyer
+      goto: foyer_arrival
+
+welcome_scroll:
+  title: The Welcome Scroll
+  text: |
+    The ribbon unties itself as you reach for it, which you decide not to
+    think about. The handwriting is loopy and in a great hurry.
+
+    > *To whoever the inn has picked (hello!),*
+    >
+    > *I'm off. Don't take it personally. The inn needs keepers, and I've
+    > kept it long enough. The rooms are made up and the toast is on.*
+    >
+    > *There's only one rule: **tend to the inn, and the inn will tend to
+    > you.** It will make more sense later. Probably.*
+    >
+    > *Don't go in the study until you know what this place is. It gets
+    > shy.*
+    >
+    > *— M. Thistlewick, Innkeeper (retired, as of about ten minutes ago)*
+
+    "Picked," Sable repeats. "Nobody *picks* me. I pick things."
+
+    "It says the toast is on," says Fennick, who has clearly stopped
+    listening after that.
+  choices:
+    - id: keep_scroll
+      label: Roll it up and keep it
+      goto: main_hall

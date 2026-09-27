@@ -43,7 +43,20 @@ updates its permissions.)
 Expect log lines like `Synced 5 commands to dev server …` and `Logged in as …`.
 Leave the window open; press **Ctrl+C** to stop the bot.
 
-## 3. Checklist
+## 3. Feature checklist (sample story)
+
+This checklist tests every feature with the **sample story** in
+`tests/fixtures/stories/`, which doesn't change when writers edit the real
+story. Start the bot with the sample story like this. The setting only lasts
+until you close the PowerShell window:
+
+```powershell
+$env:CONTENT_DIR = "tests/fixtures/stories"
+.venv\Scripts\python -m invisible_inn
+```
+
+To go back to the real story, close the window and open a new one, or run
+`Remove-Item Env:CONTENT_DIR`. The bot's log says which story it loaded.
 
 Play in a normal text channel. ✅ = what should happen.
 
@@ -77,6 +90,19 @@ Play in a normal text channel. ✅ = what should happen.
 **Optional, needs a second account in the server:** as the second account, click
 a button in someone else's game (server admins can see private threads). ✅ "This
 isn't your adventure".
+
+## 4. Story playtest (real story)
+
+Start the bot normally (without `CONTENT_DIR`), then play the real story as the
+Scholar. There's no fixed script. Check that:
+
+| # | Check | ✅ Expected |
+|---|---|---|
+| 1 | `/start` | Role card: **Scholar** is clickable. Rogue and Mage are grey "(coming soon)" |
+| 2 | Play through to an ending | Every scene has a way forward. Locked choices (STAFF ONLY, the Restricted section, *Call everyone together*) unlock as described in their scenes |
+| 3 | `/quests` along the way | *The Inn's Chaotic History* and *The Empty Front Desk* appear only once introduced. The Scholar's secret *The Forbidden Research* appears after taking the journal |
+| 4 | Replay with different choices | Three endings: confess (secret quest completes), keep the secret (quest stays in progress) and never take the journal |
+| 5 | Reading it as a player | Note anything that feels too long, too short, unclear or not funny, and the scene it's in |
 
 ## If something goes wrong
 

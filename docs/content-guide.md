@@ -4,8 +4,11 @@ Stories live in `content/stories/`. You don't need to touch any Python code to
 write or change scenes, items or choices. You only edit YAML files, a simple
 text format made of `name: value` lines where indentation matters.
 
-> The included story (`content/stories/invisible_inn/`) is **sample content**
-> that shows every feature. Replace it with the real story.
+> `content/stories/invisible_inn/` is the **real story**: currently a draft of
+> the v1 Scholar slice. Its `story.yaml` lists the placeholder names to replace.
+> For a small example of **every** feature, see the sample story in
+> `tests/fixtures/stories/invisible_inn/`. The automated tests use it, so leave
+> it alone unless you're changing the tests too.
 
 ## Folder layout
 

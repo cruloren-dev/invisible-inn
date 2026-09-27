@@ -1,0 +1,82 @@
+# Milestone 3: The Inn's Greatest Hits (the guest book). DRAFT: edit freely.
+
+guest_book_parlor:
+  title: The Parlour
+  text: |
+    The parlour is all overstuffed armchairs, doilies and portraits of guests
+    who have clearly had a wonderful time. One of the portraits winks.
+
+    On a stand by the window sits an enormous guest book, open to the latest
+    page. A pen hovers above it, waiting hopefully.
+
+    Sable is running her hands down the sides of the armchairs with the air
+    of someone who absolutely isn't looking for loose change.
+  choices:
+    - id: open_guest_book
+      label: Open the guest book
+      goto: guest_book_entries
+      starts_quests: [decipher_history]
+    - id: sable_armchairs
+      label: Ask Sable what she's looking for
+      goto: guest_book_parlor
+      requires:
+        not_flags: [asked_sable]
+      sets_flags: [asked_sable]
+      result_text: |
+        "Nothing," says Sable, far too quickly. Then: "Hypothetically, if an
+        inn had a vault, where would it be?" She won't say anything else about
+        it.
+    - id: back_to_hall
+      label: Back to the main hall
+      goto: main_hall
+
+guest_book_entries:
+  title: The Guest Book
+  text: |
+    You turn the pages. The reviews go back more than a century.
+
+    > *"Lovely stay. Only set fire to one thing. — Grimsworth (dragon)"*
+
+    > *"Room 7 is haunted by a very polite ghost. He folded my socks.
+    > Five stars."*
+
+    > *"Arrived in a storm with nothing but my regrets. Left with my regrets
+    > neatly organised. Would return."*
+
+    > *"The kettle has a lot of feelings."*
+
+    Every guest arrived in a storm. Every guest was running from something.
+    And every single one of them left a little lighter than they came.
+
+    Near the back, one entry makes the room go very quiet. It's dated twelve
+    years ago, and it's in **your** handwriting:
+
+    > *"Research going well. Please do not dust the archive."*
+
+    You have never been here before. You're almost sure.
+  choices:
+    - id: look_closer
+      label: Look closer at the entry in your handwriting
+      goto: guest_book_entries
+      requires:
+        roles: [scholar]
+        not_flags: [saw_own_entry]
+      sets_flags: [saw_own_entry]
+      result_text: |
+        The ink is faintly iridescent, like oil on water. Memory ink. You'd
+        know it anywhere. You invented it. Next to the entry, somebody has
+        pencilled a shelf mark: *Library, Restricted, 12-B.*
+    - id: take_guest_book
+      label: Take the guest book with you
+      goto: guest_book_parlor
+      requires:
+        not_items: [guest_book]
+      gives: [guest_book]
+      completes_quests: [decipher_history]
+      result_text: |
+        "So it's a sanctuary," Fennick says slowly. "For people running from
+        things." He doesn't look at either of you. You don't look at either of
+        them. Nobody looks at anybody, for quite some time.
+    - id: close_book
+      label: Close the book
+      goto: guest_book_parlor

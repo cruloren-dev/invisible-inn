@@ -1,0 +1,29 @@
+# Story settings. See docs/content-guide.md for every option.
+#
+# NOTE: this is SAMPLE content for the automated tests. It demonstrates every
+# feature of the file format. The real story is in content/stories/.
+# Tests depend on its scene, choice, item and quest ids, so change it only
+# together with the tests.
+
+title: The Invisible Inn
+description: A short sample adventure. Find the inn that nobody can see.
+start_scene: arrival
+
+# Group play isn't built yet; version 1 is solo. These are read and validated
+# now so stories can declare their intended party size ahead of time.
+min_players: 1
+max_players: 1
+
+# The characters players choose between when a game starts. Leave this out for
+# a story without roles. `playable: false` shows a role as "coming soon".
+roles:
+  scholar:
+    name: Scholar
+    description: Knows a little about everything, and a lot about footnotes.
+  rogue:
+    name: Rogue
+    description: Can open any lock, except the one on her own past.
+  mage:
+    name: Mage
+    description: Half-finished spells and wholly unfinished business.
+    playable: false

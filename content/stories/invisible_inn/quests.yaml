@@ -1,14 +1,19 @@
-# Every quest in the story. Choices start and complete them with
-# `starts_quests` and `completes_quests`. Players see a quest in /quests only
-# once a choice has started it.
-#
-# NOTE: SAMPLE content. See docs/content-guide.md.
+# Every quest in the story. DRAFT: edit freely.
+# Quest ids are used in scenes, so change a title or description freely but keep
+# the id (the first line) unless you change the scenes too.
 
-find_the_innkeeper:
-  title: Who Runs This Place?
-  description: The inn seems to be open, but nobody is minding the desk.
+decipher_history:
+  title: The Inn's Chaotic History
+  description: The inn has had a lot of guests. Some of them were dragons. Find out what this place really is.
 
-decode_the_sign:
-  title: The Vanishing Letters
-  description: The sign's lettering was a condensation cipher. Find someone who knows who wrote it.
-  role: scholar             # a secret quest: only the Scholar sees it
+why_innkeeper_left:
+  title: The Empty Front Desk
+  description: Whoever ran this inn left in a hurry, and left you a job. Find out why.
+
+restore_research:
+  title: The Forbidden Research
+  description: >-
+    The inn kept your old journals: the memory-ink research you swore you'd
+    burned after Little Mumbling. Decide what to do about them before anyone
+    asks.
+  role: scholar

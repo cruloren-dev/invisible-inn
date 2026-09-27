@@ -1,0 +1,122 @@
+# Milestone 8 (slice version): The Grand Revelation. DRAFT: edit freely.
+# In the full game, Milestones 6-7 come before this, and it leads on to
+# Milestones 9-10. For the slice, it ends the chapter.
+#
+# The validator warns that "every choice has requirements" here. That's expected:
+# the choices cover both cases (carrying the journal or not), so nobody gets stuck.
+
+grand_revelation:
+  title: The Grand Revelation (Part One)
+  text: |
+    The three of you sit around the innkeeper's desk. The door is locked.
+    The fire in the grate has shaped itself into what looks suspiciously
+    like a question mark.
+
+    Sable goes first, because Sable always goes first when something is
+    going to hurt. "Fine. I found the vault. Well, I found out there *is* a
+    vault. I came here because I owe some very unpleasant people a very
+    large amount of money, and the inn apparently has the answer in a
+    locked room. That's it. That's my secret."
+
+    Fennick exhales. "The kettle," he says. "The kettle in the kitchen is my
+    old mentor. I was trying a transformation spell. He wanted to see it.
+    He *insisted*. And I... never finished the reversal."
+
+    "You turned your teacher into a *kettle*?"
+
+    "He's a very good kettle!"
+
+    And then they both turn to look at you.
+
+    The fire question mark flickers expectantly.
+  choices:
+    - id: confess
+      label: Tell them about the journal
+      goto: ending_confess
+      requires:
+        items: [forbidden_journal]
+      completes_quests: [restore_research]
+      sets_flags: [scholar_truth_accepted]
+    - id: keep_secret
+      label: Say you've got nothing to confess (you do)
+      goto: ending_secret
+      requires:
+        items: [forbidden_journal]
+    - id: nothing_to_hide
+      label: Say you've got nothing to hide
+      goto: ending_unaware
+      requires:
+        not_items: [forbidden_journal]
+
+ending_confess:
+  title: Put Down
+  ending: true
+  text: |
+    You put the blue journal on the desk. Then, haltingly, you tell them
+    about memory ink, about Little Mumbling and the lost Tuesdays, and
+    about the version of you who came here twelve years ago and made
+    yourself forget.
+
+    Nobody laughs, which is almost worse. Then Sable does laugh, just a
+    little, and says: "A whole *town*?" And Fennick says: "At least you
+    didn't turn anyone into a kettle." And somehow that's the funniest thing
+    any of you have ever heard.
+
+    The study door unlocks with a soft click. Somewhere in the kitchen, a
+    kettle whistles.
+
+    The inn feels warmer. Lighter. Like it's settling.
+
+    **End of Chapter One.** *To be continued…*
+  role_text:
+    scholar: |
+      You put the blue journal on the desk. Then, haltingly, you tell them
+      about memory ink, about Little Mumbling and the lost Tuesdays, and
+      about the version of you who came here twelve years ago and made
+      yourself forget.
+
+      Nobody laughs, which is almost worse. Then Sable does laugh, just a
+      little, and says: "A whole *town*?" And Fennick says: "At least you
+      didn't turn anyone into a kettle." And somehow that's the funniest thing
+      any of you have ever heard.
+
+      The study door unlocks with a soft click. Somewhere in the kitchen, a
+      kettle whistles. For the first time in twelve years, the research
+      doesn't feel like something you're running from. It feels like
+      something you might be able to fix.
+
+      **End of Chapter One.** *To be continued…*
+
+ending_secret:
+  title: Not Yet
+  ending: true
+  text: |
+    "Nothing," you say. "I'm just here for the toast."
+
+    Sable narrows her eyes. Fennick nods too quickly, the way people do
+    when they've decided not to push. The journal sits under your coat like
+    a hot coal.
+
+    The study door stays locked for a long, awkward minute. Then, with a
+    reluctant click, it opens. On the other side, the corridor has quietly
+    rearranged itself so that every door now leads back to the library.
+
+    The inn, it seems, is prepared to wait.
+
+    **End of Chapter One.** *To be continued…*
+
+ending_unaware:
+  title: Nothing to Hide
+  ending: true
+  text: |
+    "Nothing to hide," you say, and you mean it. Mostly.
+
+    But when you say it, the entry in the guest book flashes into your
+    mind: your handwriting, twelve years old. *"Please do not dust the
+    archive."* Something tugs at the edge of your memory and slips away.
+
+    The study door unlocks. Sable and Fennick go to find the toast. You
+    stay behind a moment longer, looking at the library door, which is
+    humming a little louder than before.
+
+    **End of Chapter One.** *To be continued…*
