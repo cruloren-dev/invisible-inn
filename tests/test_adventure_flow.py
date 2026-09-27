@@ -131,6 +131,36 @@ class AdventureFlowTests(unittest.IsolatedAsyncioTestCase):
         await self.cog.start.callback(self.cog, i)
         self.assertIn("Use `/start` in <#2>", i.response.send_message.call_args.args[0])
 
+    async def pick_role(self, user_id, role_id):
+        interaction = fake_interaction(user_id)
+        await self.cog.handle_role(interaction, self.session.id, role_id)
+        return interaction
+
+    async def test_picking_a_role_starts_the_story(self):
+        i = await self.pick_role(100, "scholar")
+        self.assertIn("chose: Scholar", i.response.edit_message.call_args.kwargs["embed"].footer.text)
+        sent = i.channel.send.call_args.kwargs
+        self.assertEqual(sent["embed"].title, "A Gap in the Street")
+        self.assertIn("Playing as Scholar", sent["embed"].footer.text)
+        saved = await self.bot.storage.get_session(self.session.id)
+        self.assertEqual((saved.state.roles, saved.state.turn), (["scholar"], 0))
+
+    async def test_role_can_only_be_picked_once(self):
+        await self.pick_role(100, "scholar")
+        i = await self.pick_role(100, "rogue")
+        self.assertIn("already chosen", i.response.send_message.call_args.args[0])
+        saved = await self.bot.storage.get_session(self.session.id)
+        self.assertEqual(saved.state.roles, ["scholar"])
+
+    async def test_unplayable_role_is_refused(self):
+        i = await self.pick_role(100, "mage")
+        self.assertIn("isn't available yet", i.response.send_message.call_args.args[0])
+        i.channel.send.assert_not_awaited()
+
+    async def test_other_users_cannot_pick_a_role(self):
+        i = await self.pick_role(999, "scholar")
+        self.assertIn("isn't your adventure", i.response.send_message.call_args.args[0])
+
     async def test_button_custom_id_round_trips(self):
         from invisible_inn.ui import ChoiceButton
         button = ChoiceButton(self.session.id, 4, "take_key", label="Take")

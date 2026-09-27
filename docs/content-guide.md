@@ -29,7 +29,19 @@ description: One sentence describing the story.
 start_scene: arrival        # id of the first scene
 min_players: 1              # for group play later (1–10)
 max_players: 1
+
+roles:                      # optional: characters players choose between
+  scholar:                  # the role id: lowercase letters, numbers, _
+    name: Scholar           # short name (max 20), also used to tag choices
+    description: Knows a little about everything.
+  mage:
+    name: Mage
+    description: Half-finished spells.
+    playable: false         # shown as "coming soon" and can't be picked yet
 ```
+
+If a story has `roles`, each game starts with a "Choose your role" message
+before the first scene. At least one role must be playable.
 
 ## items.yaml
 
@@ -60,6 +72,25 @@ foyer:
 - `text: |`: the `|` lets you write several lines. Indent the text under it.
 - Scene text can be up to 4,000 characters. For anything longer, split it into two scenes.
 - An ending scene has `ending: true` and no choices.
+
+### Role-specific text
+
+A scene can have its own version of the text for a role. The role's version
+**replaces** `text` for a player of that role. Roles without their own version
+see `text`.
+
+```yaml
+library:
+  title: The Grand Library
+  text: |
+    Shelves climb into the dark.          ← what everyone else sees
+  role_text:
+    scholar: |
+      Shelves climb into the dark, sorted by a system you almost recognise.
+```
+
+In group play (later), a party with more than one role sees the shared `text`,
+so write `text` so it works for everyone.
 
 ## Choices
 
@@ -94,7 +125,12 @@ requires:
   not_items: [lantern]      # must NOT be carrying any of these
   flags: [read_sign]        # ALL of these flags must be set
   not_flags: [door_opened]  # NONE of these flags may be set
+  roles: [scholar]          # only for these roles (any one of them)
 ```
+
+A choice with `roles` is shown with the role in front of its label, e.g.
+**[Scholar] Examine the runes**. The tag counts toward the 80-character limit,
+and the validator checks it.
 
 Common patterns:
 
@@ -104,6 +140,8 @@ Common patterns:
   `show_locked: true`.
 - **One-time event:** `sets_flags: [bell_rung]` with
   `requires: {not_flags: [bell_rung]}`.
+- **Something only one role can do:** `requires: {roles: [rogue]}`. Make sure
+  every role still has at least one choice in the scene, or they'll get stuck.
 
 ## Checking your work
 

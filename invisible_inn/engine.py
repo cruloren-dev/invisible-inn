@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 
-from .content.models import Choice, Requirements, Scene, Story
+from .content.models import Choice, Requirements, Scene, Story, role_label
 
 
 class ChoiceUnavailable(Exception):
@@ -24,6 +24,9 @@ class GameState:
     so clicks on old messages (or double-clicks) are ignored."""
     inventory: list[str] = field(default_factory=list)
     flags: set[str] = field(default_factory=set)
+    roles: list[str] = field(default_factory=list)
+    """Roles in the party. Solo games have one. Empty until the player picks a role
+    (or always empty, for stories without roles)."""
 
     def to_json(self) -> str:
         return json.dumps({
@@ -31,6 +34,7 @@ class GameState:
             "turn": self.turn,
             "inventory": self.inventory,
             "flags": sorted(self.flags),
+            "roles": self.roles,
         })
 
     @classmethod
@@ -41,6 +45,7 @@ class GameState:
             turn=int(data.get("turn", 0)),
             inventory=list(data.get("inventory", [])),
             flags=set(data.get("flags", [])),
+            roles=list(data.get("roles", [])),
         )
 
 
@@ -63,8 +68,19 @@ class ChoiceResult:
         return self.scene.ending
 
 
-def new_game(story: Story) -> GameState:
-    return GameState(scene_id=story.start_scene)
+def new_game(story: Story, roles: list[str] | tuple[str, ...] = ()) -> GameState:
+    return GameState(scene_id=story.start_scene, roles=list(roles))
+
+
+def needs_role(story: Story, state: GameState) -> bool:
+    """True if the story has roles and the player hasn't picked one yet."""
+    return bool(story.roles) and not state.roles
+
+
+def with_roles(state: GameState, roles: list[str]) -> GameState:
+    """A copy of ``state`` with the party's roles set."""
+    return GameState(scene_id=state.scene_id, turn=state.turn, inventory=list(state.inventory),
+                     flags=set(state.flags), roles=list(roles))
 
 
 def meets(req: Requirements, state: GameState) -> bool:
@@ -74,7 +90,20 @@ def meets(req: Requirements, state: GameState) -> bool:
         and not any(i in inv for i in req.not_items)
         and all(f in state.flags for f in req.flags)
         and not any(f in state.flags for f in req.not_flags)
+        and (not req.roles or any(r in state.roles for r in req.roles))
     )
+
+
+def scene_text(scene: Scene, state: GameState) -> str:
+    """The scene's text for this party: a role's own version if there's one role, else the shared text."""
+    if len(state.roles) == 1:
+        return scene.role_text.get(state.roles[0], scene.text)
+    return scene.text
+
+
+def choice_label(story: Story, choice: Choice) -> str:
+    """The label players see, tagged with the role for role-only choices."""
+    return role_label(choice.label, [story.role_name(r) for r in choice.requires.roles])
 
 
 def options_for(story: Story, state: GameState) -> list[ChoiceOption]:
@@ -105,6 +134,7 @@ def choose(story: Story, state: GameState, choice_id: str) -> ChoiceResult:
     flags = (set(state.flags) | set(choice.sets_flags)) - set(choice.clears_flags)
     new_state = GameState(
         scene_id=choice.goto, turn=state.turn + 1, inventory=inventory, flags=flags,
+        roles=list(state.roles),
     )
     return ChoiceResult(
         state=new_state, scene=story.scene(choice.goto), chosen=choice,
