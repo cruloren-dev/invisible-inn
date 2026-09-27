@@ -4,12 +4,13 @@
 
 decipher_history:
   title: The Inn's Chaotic History
-  description: The inn has had a lot of guests. Some of them were dragons. Find out what this place really is.
+  description: The inn has had a lot of guests. Find out what this place really is.
 
 why_innkeeper_left:
   title: The Empty Front Desk
   description: Whoever ran this inn left in a hurry, and left you a job. Find out why.
 
+#Scholar's Secrets 
 restore_research:
   title: The Forbidden Research
   description: >-
@@ -17,3 +18,24 @@ restore_research:
     burned after Little Mumbling. Decide what to do about them before anyone
     asks.
   role: scholar
+
+faulty_memory:
+  title: What Is Memory, Really?
+  description: Little Mumbling forgot you, forgot the ink, forgot Tuesdays. Do you let sleeping dogs lie?
+  role: scholar
+
+remember_me:
+  title: Memory Is A Fickle Thing
+  description: One drop and the whole thing could be forgotten. You have a difficult decision to make.
+  role: scholar
+
+#Rogue's Secrets
+clear_the_air:
+  title: Clear the Air
+  description: You have been carrying your secret for so long.
+  role: rogue
+
+cure_the_kettle:
+  title: Cure the Kettle
+  description: Your mentor did not deserve this life.
+  role: mage
