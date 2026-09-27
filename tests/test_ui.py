@@ -63,6 +63,25 @@ class RenderTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(selects), 1)
         self.assertEqual(len(selects[0].options), 7)
 
+    async def test_role_picker_greys_out_unplayable_roles(self):
+        embed, view = self.ui.render_role_picker(self.story, session_id=7)
+        self.assertIn("Choose your role", embed.footer.text)
+        buttons = {b.custom_id: b for b in components(view)}
+        pattern = re.compile(self.ui.ROLE_TEMPLATE)
+        for custom_id in buttons:
+            self.assertIsNotNone(pattern.fullmatch(custom_id), custom_id)
+        self.assertFalse(buttons["inn:r:7:scholar"].disabled)
+        self.assertTrue(buttons["inn:r:7:mage"].disabled)
+        self.assertIn("coming soon", buttons["inn:r:7:mage"].label)
+
+    async def test_role_choice_shows_tagged_label_and_role_footer(self):
+        state = engine.GameState("sign", roles=["scholar"])
+        embed, view = self.ui.render_scene(self.story, state, session_id=1)
+        labels = [b.label for b in components(view)]
+        self.assertIn("[Scholar] Copy the cipher before it fades", labels)
+        self.assertIn("condensation cipher", embed.description)
+        self.assertIn("Playing as Scholar", embed.footer.text)
+
     async def test_cog_module_imports(self):
         import invisible_inn.client  # noqa: F401
         import invisible_inn.cogs.adventure  # noqa: F401

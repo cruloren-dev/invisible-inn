@@ -97,7 +97,10 @@ class Adventure(commands.Cog):
         )
         log.info("Session %s started by %s in thread %s", session.id, interaction.user.id, thread.id)
 
-        embed, view = ui.render_scene(chosen, state, session.id)
+        if engine.needs_role(chosen, state):
+            embed, view = ui.render_role_picker(chosen, session.id)
+        else:
+            embed, view = ui.render_scene(chosen, state, session.id)
         await thread.send(content=f"{interaction.user.mention}, your adventure begins…", embed=embed, view=view)
         await interaction.followup.send(f"Your adventure awaits in {thread.mention}.", ephemeral=True)
 
@@ -188,14 +191,46 @@ class Adventure(commands.Cog):
 
             await self.bot.storage.save_state(session_id, result.state, FINISHED if result.finished else ACTIVE)
 
-        # Freeze the old message and record what was chosen.
-        old_embed = interaction.message.embeds[0] if interaction.message and interaction.message.embeds else None
-        if old_embed:
-            old_embed.set_footer(text=f"▶ {interaction.user.display_name} chose: {result.chosen.label}")
-        await interaction.response.edit_message(embed=old_embed, view=None)
-
+        await self._freeze(interaction, engine.choice_label(story, result.chosen))
         embed, view = ui.render_scene(story, result.state, session_id, result)
         await interaction.channel.send(embed=embed, view=view)  # type: ignore[union-attr]
+
+    async def handle_role(self, interaction: discord.Interaction, session_id: int, role_id: str) -> None:
+        """Called by the role-picker buttons in ``ui.py``."""
+        async with self._lock(session_id):
+            session = await self.bot.storage.get_session(session_id)
+            if session is None or session.status != ACTIVE:
+                await interaction.response.send_message("This adventure has ended.", ephemeral=True)
+                return
+            if not await self.bot.storage.is_player(session_id, interaction.user.id):
+                await interaction.response.send_message("This isn't your adventure — use `/start` to begin "
+                                                        "your own.", ephemeral=True)
+                return
+            story = self.bot.stories.get(session.story_id)
+            if story is None:
+                await interaction.response.send_message("That story is no longer available.", ephemeral=True)
+                return
+            if not engine.needs_role(story, session.state):
+                await interaction.response.send_message("You've already chosen your role.", ephemeral=True)
+                return
+            role = story.roles.get(role_id)
+            if role is None or not role.playable:
+                await interaction.response.send_message("That role isn't available yet.", ephemeral=True)
+                return
+            state = engine.with_roles(session.state, [role_id])
+            await self.bot.storage.save_state(session_id, state)
+
+        log.info("Session %s: %s chose role %s", session_id, interaction.user.id, role_id)
+        await self._freeze(interaction, role.name)
+        embed, view = ui.render_scene(story, state, session_id)
+        await interaction.channel.send(embed=embed, view=view)  # type: ignore[union-attr]
+
+    async def _freeze(self, interaction: discord.Interaction, chosen: str) -> None:
+        """Remove the buttons from the clicked message and record what was chosen."""
+        old_embed = interaction.message.embeds[0] if interaction.message and interaction.message.embeds else None
+        if old_embed:
+            old_embed.set_footer(text=f"▶ {interaction.user.display_name} chose: {chosen}")
+        await interaction.response.edit_message(embed=old_embed, view=None)
 
     # ---------------------------------------------------------------- helpers
     async def _session_for(self, interaction: discord.Interaction):

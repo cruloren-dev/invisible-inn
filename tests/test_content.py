@@ -22,10 +22,72 @@ class ValidationTests(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def load(self, scenes, items="", start="start"):
+    def load(self, scenes, items="", start="start", story_extra=""):
         report = LoadReport()
-        story = load_story(write_story(self.root, scenes, items, start), report)
+        story = load_story(write_story(self.root, scenes, items, start, story_extra=story_extra), report)
         return story, report
+
+    ROLES = """
+        roles:
+          scholar: {name: Scholar, description: Bookish.}
+          mage: {name: Mage, playable: false}
+    """
+
+    def test_roles_and_role_content_load(self):
+        story, report = self.load("""
+            start:
+              title: Start
+              text: Shared text
+              role_text:
+                scholar: Scholar text
+              choices:
+                - {id: go, label: Go, goto: start}
+                - {id: read, label: Read, goto: start, requires: {roles: [scholar]}}
+        """, story_extra=self.ROLES)
+        self.assertEqual(report.errors, [])
+        self.assertEqual(list(story.roles), ["scholar", "mage"])
+        self.assertFalse(story.roles["mage"].playable)
+        scene = story.scene("start")
+        self.assertEqual(scene.role_text, {"scholar": "Scholar text"})
+        self.assertEqual(scene.choice("read").requires.roles, ("scholar",))
+
+    def test_reports_unknown_roles(self):
+        story, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              role_text:
+                rogue: Sneaky text
+              choices:
+                - {id: go, label: Go, goto: start, requires: {roles: [bard]}}
+        """, story_extra=self.ROLES)
+        self.assertIsNone(story)
+        joined = "\n".join(report.errors)
+        self.assertIn("'rogue' is not a role", joined)
+        self.assertIn("role 'bard' is not defined", joined)
+
+    def test_reports_label_too_long_with_role_tag(self):
+        label = "x" * 75  # fits alone, but not with "[Scholar] " in front
+        story, report = self.load(f"""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {{id: go, label: Go, goto: start}}
+                - {{id: read, label: {label}, goto: start, requires: {{roles: [scholar]}}}}
+        """, story_extra=self.ROLES)
+        self.assertIsNone(story)
+        self.assertIn("with its role tag", "\n".join(report.errors))
+
+    def test_reports_no_playable_role(self):
+        story, report = self.load("""
+            start: {title: End, text: Bye, ending: true}
+        """, story_extra="""
+            roles:
+              mage: {name: Mage, playable: false}
+        """)
+        self.assertIsNone(story)
+        self.assertIn("at least one role must be playable", "\n".join(report.errors))
 
     def test_minimal_story_loads(self):
         story, report = self.load("""

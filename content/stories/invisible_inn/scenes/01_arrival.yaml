@@ -32,9 +32,26 @@ sign:
     *THE INVISIBLE INN — Guests welcome, visible or otherwise.*
 
     The words fade as quickly as they appeared.
+  # A role's own version of the text, used instead of `text` for that role.
+  role_text:
+    scholar: |
+      You breathe on the sign to wipe away the damp, and letters bloom in
+      the fog of your breath:
+
+      *THE INVISIBLE INN — Guests welcome, visible or otherwise.*
+
+      The lettering is a condensation cipher, the kind you've only ever read
+      about in footnotes. Your fingers itch for a notebook.
   choices:
     - id: back
       label: Step back into the street
+      goto: arrival
+      sets_flags: [read_sign]
+    - id: copy_cipher
+      label: Copy the cipher before it fades
+      requires:
+        roles: [scholar]         # only the Scholar sees this; shown as "[Scholar] Copy…"
+      result_text: You scribble the letters on your cuff. They'll keep.
       goto: arrival
       sets_flags: [read_sign]
 

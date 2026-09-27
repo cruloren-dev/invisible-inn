@@ -56,8 +56,52 @@ class EngineTests(unittest.TestCase):
             engine.choose(self.story, self.state, "fly_away")
 
     def test_state_round_trips_through_json(self):
-        state = engine.GameState("foyer", turn=3, inventory=["brass_key"], flags={"read_sign"})
+        state = engine.GameState("foyer", turn=3, inventory=["brass_key"], flags={"read_sign"},
+                                 roles=["scholar"])
         self.assertEqual(engine.GameState.from_json(state.to_json()), state)
+
+    def test_old_saved_state_without_roles_still_loads(self):
+        state = engine.GameState.from_json('{"scene_id": "foyer", "turn": 2}')
+        self.assertEqual(state.roles, [])
+
+
+class RoleTests(unittest.TestCase):
+    def setUp(self):
+        self.story = sample_story()
+        self.sign = engine.GameState("sign")
+
+    def test_story_needs_a_role_until_one_is_picked(self):
+        state = engine.new_game(self.story)
+        self.assertTrue(engine.needs_role(self.story, state))
+        picked = engine.with_roles(state, ["scholar"])
+        self.assertFalse(engine.needs_role(self.story, picked))
+        self.assertEqual(state.roles, [], "original state must not change")
+
+    def test_role_choice_only_for_that_role(self):
+        self.assertNotIn("copy_cipher", [o.choice.id for o in engine.options_for(self.story, self.sign)])
+        with self.assertRaises(engine.ChoiceUnavailable):
+            engine.choose(self.story, self.sign, "copy_cipher")
+        rogue = engine.with_roles(self.sign, ["rogue"])
+        self.assertNotIn("copy_cipher", [o.choice.id for o in engine.options_for(self.story, rogue)])
+        scholar = engine.with_roles(self.sign, ["scholar"])
+        self.assertIn("copy_cipher", [o.choice.id for o in engine.options_for(self.story, scholar)])
+        result = engine.choose(self.story, scholar, "copy_cipher")
+        self.assertEqual(result.state.roles, ["scholar"], "roles carry over to the next scene")
+
+    def test_role_text_replaces_shared_text(self):
+        scene = self.story.scene("sign")
+        scholar = engine.with_roles(self.sign, ["scholar"])
+        rogue = engine.with_roles(self.sign, ["rogue"])
+        self.assertIn("condensation cipher", engine.scene_text(scene, scholar))
+        self.assertEqual(engine.scene_text(scene, rogue), scene.text)
+        both = engine.with_roles(self.sign, ["scholar", "rogue"])
+        self.assertEqual(engine.scene_text(scene, both), scene.text, "a mixed party gets the shared text")
+
+    def test_role_choice_label_is_tagged(self):
+        choice = self.story.scene("sign").choice("copy_cipher")
+        self.assertEqual(engine.choice_label(self.story, choice), "[Scholar] Copy the cipher before it fades")
+        plain = self.story.scene("sign").choice("back")
+        self.assertEqual(engine.choice_label(self.story, plain), "Step back into the street")
 
 
 if __name__ == "__main__":

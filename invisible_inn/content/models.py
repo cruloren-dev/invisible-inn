@@ -9,6 +9,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
+def role_label(label: str, role_names: list[str]) -> str:
+    """A choice label with its role tag, e.g. "[Scholar] Examine the runes"."""
+    return f"[{' / '.join(role_names)}] {label}" if role_names else label
+
+
 @dataclass(frozen=True)
 class Requirements:
     """Conditions a player must meet for a choice to be available.
@@ -24,9 +29,11 @@ class Requirements:
     """Story flags that must be set."""
     not_flags: tuple[str, ...] = ()
     """Story flags that must NOT be set."""
+    roles: tuple[str, ...] = ()
+    """Role ids, any one of which must be in the party (e.g. only the Scholar)."""
 
     def is_empty(self) -> bool:
-        return not (self.items or self.not_items or self.flags or self.not_flags)
+        return not (self.items or self.not_items or self.flags or self.not_flags or self.roles)
 
 
 @dataclass(frozen=True)
@@ -56,6 +63,8 @@ class Scene:
     choices: tuple[Choice, ...] = ()
     ending: bool = False
     source_file: str = ""
+    role_text: dict[str, str] = field(default_factory=dict)
+    """Text to show instead of ``text`` when the party is a single role, keyed by role id."""
 
     def choice(self, choice_id: str) -> Choice | None:
         for c in self.choices:
@@ -72,6 +81,16 @@ class Item:
 
 
 @dataclass(frozen=True)
+class Role:
+    id: str
+    name: str
+    """Short name, used in choice labels, e.g. "[Scholar] Examine the runes"."""
+    description: str = ""
+    playable: bool = True
+    """False shows the role as "coming soon" in the role picker."""
+
+
+@dataclass(frozen=True)
 class Story:
     id: str
     title: str
@@ -81,9 +100,15 @@ class Story:
     items: dict[str, Item]
     min_players: int = 1
     max_players: int = 1
+    roles: dict[str, Role] = field(default_factory=dict)
+    """Characters players choose between. Empty means the story has no role choice."""
 
     def scene(self, scene_id: str) -> Scene:
         return self.scenes[scene_id]
+
+    def role_name(self, role_id: str) -> str:
+        role = self.roles.get(role_id)
+        return role.name if role else role_id
 
     def item_name(self, item_id: str) -> str:
         item = self.items.get(item_id)

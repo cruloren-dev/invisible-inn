@@ -21,7 +21,7 @@ from typing import Any
 
 import yaml
 
-from .models import Choice, Item, Requirements, Scene, Story
+from .models import Choice, Item, Requirements, Role, Scene, Story, role_label
 
 # Discord limits we must respect when rendering content.
 MAX_TITLE = 256          # embed title
@@ -76,7 +76,7 @@ def _parse_requirements(raw: Any, where: str, errors: list[str]) -> Requirements
     if not isinstance(raw, dict):
         errors.append(f"{where}.requires: expected a mapping")
         return Requirements()
-    allowed = {"items", "not_items", "flags", "not_flags"}
+    allowed = {"items", "not_items", "flags", "not_flags", "roles"}
     for key in raw:
         if key not in allowed:
             errors.append(f"{where}.requires: unknown key '{key}' (allowed: {', '.join(sorted(allowed))})")
@@ -85,6 +85,7 @@ def _parse_requirements(raw: Any, where: str, errors: list[str]) -> Requirements
         not_items=_tuple_of_str(raw.get("not_items"), f"{where}.requires.not_items", errors),
         flags=_tuple_of_str(raw.get("flags"), f"{where}.requires.flags", errors),
         not_flags=_tuple_of_str(raw.get("not_flags"), f"{where}.requires.not_flags", errors),
+        roles=_tuple_of_str(raw.get("roles"), f"{where}.requires.roles", errors),
     )
 
 
@@ -92,7 +93,40 @@ CHOICE_KEYS = {
     "id", "label", "goto", "description", "requires", "show_locked",
     "gives", "takes", "sets_flags", "clears_flags", "result_text",
 }
-SCENE_KEYS = {"title", "text", "choices", "ending"}
+SCENE_KEYS = {"title", "text", "choices", "ending", "role_text"}
+ROLE_KEYS = {"name", "description", "playable"}
+MAX_ROLE_NAME = 20
+
+
+def _parse_roles(raw: Any, errors: list[str]) -> dict[str, Role]:
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        errors.append("story.yaml › roles: must be a mapping of role_id -> role")
+        return {}
+    roles = {}
+    for role_id, spec in raw.items():
+        where = f"story.yaml › roles › {role_id}"
+        if not ID_PATTERN.match(str(role_id)):
+            errors.append(f"{where}: role ids must be 1-32 characters of a-z, 0-9 or _")
+            continue
+        if not isinstance(spec, dict) or not isinstance(spec.get("name"), str) or not spec["name"].strip():
+            errors.append(f"{where}: needs at least a 'name'")
+            continue
+        for key in spec:
+            if key not in ROLE_KEYS:
+                errors.append(f"{where}: unknown key '{key}'")
+        name = spec["name"].strip()
+        if len(name) > MAX_ROLE_NAME:
+            errors.append(f"{where}: 'name' is {len(name)} characters; keep it to {MAX_ROLE_NAME} "
+                          "(it's added to choice labels)")
+        roles[role_id] = Role(
+            id=role_id, name=name, description=str(spec.get("description") or ""),
+            playable=bool(spec.get("playable", True)),
+        )
+    if roles and not any(r.playable for r in roles.values()):
+        errors.append("story.yaml › roles: at least one role must be playable")
+    return roles
 
 
 def _parse_choice(raw: Any, where: str, errors: list[str]) -> Choice | None:
@@ -179,9 +213,24 @@ def _parse_scene(scene_id: str, raw: Any, path: Path, errors: list[str]) -> Scen
     if not ending and not choices and not raw_choices:
         errors.append(f"{where}: has no choices — add some, or mark it 'ending: true'")
 
+    role_text: dict[str, str] = {}
+    raw_role_text = raw.get("role_text")
+    if raw_role_text is not None:
+        if not isinstance(raw_role_text, dict):
+            errors.append(f"{where}: 'role_text' must be a mapping of role_id -> text")
+        else:
+            for role_id, rt in raw_role_text.items():
+                if not isinstance(rt, str) or not rt.strip():
+                    errors.append(f"{where} › role_text › {role_id}: must be some text")
+                elif len(rt) > MAX_TEXT:
+                    errors.append(f"{where} › role_text › {role_id}: is {len(rt)} characters; "
+                                  f"the limit is {MAX_TEXT}")
+                else:
+                    role_text[str(role_id)] = rt.rstrip()
+
     return Scene(
         id=scene_id, title=title.strip(), text=text.rstrip(), choices=tuple(choices),
-        ending=ending, source_file=path.name,
+        ending=ending, source_file=path.name, role_text=role_text,
     )
 
 
@@ -246,6 +295,8 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
     if not isinstance(start, str) or start not in scenes:
         errors.append(f"story.yaml: start_scene '{start}' is not a scene that exists")
 
+    roles = _parse_roles(meta.get("roles"), errors)
+
     min_p, max_p = meta.get("min_players", 1), meta.get("max_players", 1)
     if not (isinstance(min_p, int) and isinstance(max_p, int) and 1 <= min_p <= max_p <= 10):
         errors.append("story.yaml: min_players/max_players must be whole numbers with 1 ≤ min ≤ max ≤ 10")
@@ -257,8 +308,20 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
         for c in scene.choices:
             set_flags.update(c.sets_flags)
     for scene in scenes.values():
+        for role_id in scene.role_text:
+            if role_id not in roles:
+                errors.append(f"{scene.source_file} › {scene.id} › role_text: '{role_id}' is not a role "
+                              "defined in story.yaml")
         for c in scene.choices:
             where = f"{scene.source_file} › {scene.id} › {c.id}"
+            for role_id in c.requires.roles:
+                if role_id not in roles:
+                    errors.append(f"{where}: role '{role_id}' is not defined in story.yaml")
+            names = [roles[r].name for r in c.requires.roles if r in roles]
+            full_label = role_label(c.label, names)
+            if names and len(full_label) > MAX_LABEL:
+                errors.append(f"{where}: with its role tag the label is {len(full_label)} characters "
+                              f"(\"{full_label}\"); Discord allows {MAX_LABEL}")
             if c.goto not in scenes:
                 errors.append(f"{where}: goto '{c.goto}' is not a scene that exists")
             for item_id in (*c.gives, *c.takes, *c.requires.items, *c.requires.not_items):
@@ -281,6 +344,7 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
         items=items,
         min_players=min_p,
         max_players=max_p,
+        roles=roles,
     )
     report.warnings.extend(_reachability_warnings(story))
     return story

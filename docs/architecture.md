@@ -38,7 +38,9 @@ writers) without changes.
 ## Game flow
 
 1. `/start` in a text channel creates a **private thread**, adds the player,
-   creates a session row and posts the first scene.
+   creates a session row and posts the first scene. If the story defines
+   **roles**, it posts a role picker first. `Adventure.handle_role` saves the
+   chosen role in `GameState.roles`, freezes the picker and posts the first scene.
 2. Each scene is an embed with buttons (≤5 choices) or a dropdown menu (6–25).
 3. A click is handled by `Adventure.handle_choice`. It checks that the session is
    active, that the clicker is a player, and that the click is for the current
@@ -55,6 +57,8 @@ everything needed to handle the click:
 ```
 inn:c:<session_id>:<turn>:<choice_id>
 inn:s:<session_id>:<turn>              (dropdown; the choice is the selected value)
+inn:r:<session_id>:<role_id>           (role picker; no turn: a second pick is refused
+                                        because a role is already set)
 ```
 
 Nothing is kept in memory between clicks, so a restart (or a Railway redeploy)
@@ -69,7 +73,24 @@ sessions         id, guild_id, channel_id, thread_id, owner_id, story_id,
 session_players  session_id, user_id, role (owner|player)
 ```
 
-`state` is `GameState` as JSON: `{scene_id, turn, inventory[], flags[]}`.
+`state` is `GameState` as JSON: `{scene_id, turn, inventory[], flags[], roles[]}`.
+Missing keys get defaults, so games saved before a field existed still load.
+
+### Roles
+
+`GameState.roles` is the **party's** roles: one in solo play, and up to one per
+player in group play. The engine uses it to:
+
+- show a choice with `requires: {roles: [...]}` only if one of those roles is in
+  the party (`engine.meets`);
+- tag such choices with the role, e.g. "[Scholar] …" (`engine.choice_label`). The
+  agreed group-play rule is that role choices are visible to everyone and labelled;
+- use a scene's `role_text` for a party of exactly one role, and the shared `text`
+  otherwise (`engine.scene_text`).
+
+For group play, the click handler will also need to check that the clicker plays
+the choice's role. That means storing which player has which role (e.g. a new
+`session_players` column, added through a migration).
 
 Schema changes are appended to `MIGRATIONS` in `storage.py` and applied
 automatically at startup (tracked with `PRAGMA user_version`).
@@ -86,7 +107,8 @@ The pieces are already in place:
 Still to design and build:
 
 - `/invite @user` and a lobby or "ready" step before the game starts
-- How a group decides: first click wins, a vote with a timer, or taking turns
+- How a group decides: **agreed: the first click wins** (see the design doc's
+  v1 scope box). Choices that wait for every player are still to be designed
 - Per-player vs shared inventory (this would extend `GameState`)
 - Whose name appears on "▶ X chose: …"
 

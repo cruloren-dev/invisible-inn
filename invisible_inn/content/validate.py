@@ -22,7 +22,8 @@ def main(argv: list[str] | None = None) -> int:
     report = load_all(content_dir)
 
     for story in report.stories.values():
-        print(f"✔ {story.title} ({story.id}): {len(story.scenes)} scenes, {len(story.items)} items")
+        roles = f", roles: {', '.join(r.name for r in story.roles.values())}" if story.roles else ""
+        print(f"✔ {story.title} ({story.id}): {len(story.scenes)} scenes, {len(story.items)} items{roles}")
     for w in report.warnings:
         print(f"⚠ warning: {w}")
     for e in report.errors:

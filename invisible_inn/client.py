@@ -10,7 +10,7 @@ from discord.ext import commands
 from .config import Config, ConfigError
 from .content import ContentError, Story, load_all
 from .storage import Storage
-from .ui import ChoiceButton, ChoiceSelect
+from .ui import ChoiceButton, ChoiceSelect, RoleButton
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class InnBot(commands.Bot):
     async def setup_hook(self) -> None:
         self.load_content()
         await self.storage.setup()
-        self.add_dynamic_items(ChoiceButton, ChoiceSelect)
+        self.add_dynamic_items(ChoiceButton, ChoiceSelect, RoleButton)
         for ext in EXTENSIONS:
             await self.load_extension(ext)
 

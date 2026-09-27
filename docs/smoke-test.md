@@ -52,9 +52,11 @@ Play in a normal text channel. ✅ = what should happen.
 | 1 | Type `/` in the channel | `/start`, `/inventory`, `/quit`, `/help` appear under the bot's name |
 | 2 | `/help` | A "How to play" card only you can see |
 | 3 | `/inventory` (no game yet) | "You don't have an adventure in progress." |
-| 4 | `/start` | Private note "Your adventure awaits in #…"; a new thread with the scene *A Gap in the Street* and 3 buttons |
+| 4 | `/start` | Private note "Your adventure awaits in #…"; a new thread with a "Choose your role" card listing Scholar, Rogue and Mage. **Mage (coming soon)** is grey |
+| 4a | Click **Scholar** | The card freezes with "▶ *you* chose: Scholar"; *A Gap in the Street* with 3 buttons and the footer "The Invisible Inn · Playing as Scholar" |
 | 5 | `/start` again | "You already have an adventure in progress…" with a link to the thread |
-| 6 | In the thread: **Look closer at the blank sign**, then **Step back into the street** | The old message freezes with "▶ *you* chose: …". Back at the street, the sign button is gone |
+| 6 | In the thread: **Look closer at the blank sign** | The Scholar's version of the text (it mentions a "condensation cipher") and a **[Scholar] Copy the cipher before it fades** button |
+| 6a | **Step back into the street** | The old message freezes with "▶ *you* chose: …". Back at the street, the sign button is gone |
 | 7 | **Step toward the laughter** | *The Foyer*, 4 buttons; **Open the green door** is grey |
 | 8 | **Take the brass key** | The line "You lift the key…", an Inventory box with ➕ Brass Key, the take-key button gone, and the green door now clickable |
 | 9 | `/inventory` in the thread | Brass Key with its description |
@@ -66,6 +68,7 @@ Play in a normal text channel. ✅ = what should happen.
 | 15 | **Back to the desk → Return to the foyer → Open the green door** | ➖ Brass Key, *Behind the Green Door* in green, footer "The End", no buttons |
 | 16 | `/start`, then `/quit` in the new thread | "You leave the inn…" with a link back to the channel you started in, and the thread is archived and locked. Typing `/start` inside a thread also links back to that channel |
 | 17 | `/start`, then `/quit` from the **main channel** | Same, and the thread is closed too |
+| 18 | `/start`, pick **Rogue**, then **Look closer at the blank sign** | The ordinary sign text, and no [Scholar] button |
 
 **Optional, needs a second account in the server:** as the second account, click
 a button in someone else's game (server admins can see private threads). ✅ "This
