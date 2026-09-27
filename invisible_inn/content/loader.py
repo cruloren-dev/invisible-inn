@@ -5,6 +5,7 @@ Directory layout for one story::
     content/stories/<story_id>/
         story.yaml          # title, description, start_scene, player counts
         items.yaml          # optional: every item in the story
+        quests.yaml         # optional: every quest in the story
         scenes/*.yaml       # one or more files, each a mapping of scene_id -> scene
 
 The loader collects *every* problem it finds (rather than stopping at the first)
@@ -21,7 +22,7 @@ from typing import Any
 
 import yaml
 
-from .models import Choice, Item, Requirements, Role, Scene, Story, role_label
+from .models import Choice, Item, Quest, Requirements, Role, Scene, Story, role_label
 
 # Discord limits we must respect when rendering content.
 MAX_TITLE = 256          # embed title
@@ -76,7 +77,8 @@ def _parse_requirements(raw: Any, where: str, errors: list[str]) -> Requirements
     if not isinstance(raw, dict):
         errors.append(f"{where}.requires: expected a mapping")
         return Requirements()
-    allowed = {"items", "not_items", "flags", "not_flags", "roles"}
+    allowed = {"items", "not_items", "flags", "not_flags", "roles", "quests_active", "quests_done",
+               "not_quests_done"}
     for key in raw:
         if key not in allowed:
             errors.append(f"{where}.requires: unknown key '{key}' (allowed: {', '.join(sorted(allowed))})")
@@ -86,16 +88,53 @@ def _parse_requirements(raw: Any, where: str, errors: list[str]) -> Requirements
         flags=_tuple_of_str(raw.get("flags"), f"{where}.requires.flags", errors),
         not_flags=_tuple_of_str(raw.get("not_flags"), f"{where}.requires.not_flags", errors),
         roles=_tuple_of_str(raw.get("roles"), f"{where}.requires.roles", errors),
+        quests_active=_tuple_of_str(raw.get("quests_active"), f"{where}.requires.quests_active", errors),
+        quests_done=_tuple_of_str(raw.get("quests_done"), f"{where}.requires.quests_done", errors),
+        not_quests_done=_tuple_of_str(raw.get("not_quests_done"), f"{where}.requires.not_quests_done", errors),
     )
 
 
 CHOICE_KEYS = {
     "id", "label", "goto", "description", "requires", "show_locked",
     "gives", "takes", "sets_flags", "clears_flags", "result_text",
+    "starts_quests", "completes_quests",
 }
 SCENE_KEYS = {"title", "text", "choices", "ending", "role_text"}
 ROLE_KEYS = {"name", "description", "playable"}
+QUEST_KEYS = {"title", "description", "role"}
 MAX_ROLE_NAME = 20
+MAX_QUEST_TITLE = 256     # embed field name
+MAX_QUEST_DESC = 1024     # embed field value
+
+
+def _parse_quests(path: Path, roles: dict[str, Role], errors: list[str]) -> dict[str, Quest]:
+    if not path.exists():
+        return {}
+    raw_quests = _read_yaml(path, errors) or {}
+    if not isinstance(raw_quests, dict):
+        errors.append(f"{path.name}: must be a mapping of quest_id -> quest")
+        return {}
+    quests = {}
+    for quest_id, raw in raw_quests.items():
+        where = f"quests.yaml › {quest_id}"
+        if not ID_PATTERN.match(str(quest_id)):
+            errors.append(f"{where}: quest ids must be 1-32 characters of a-z, 0-9 or _")
+            continue
+        if not isinstance(raw, dict) or not isinstance(raw.get("title"), str) or not raw["title"].strip():
+            errors.append(f"{where}: needs at least a 'title'")
+            continue
+        for key in raw:
+            if key not in QUEST_KEYS:
+                errors.append(f"{where}: unknown key '{key}'")
+        title, desc, role = raw["title"].strip(), str(raw.get("description") or "").strip(), raw.get("role")
+        if len(title) > MAX_QUEST_TITLE:
+            errors.append(f"{where}: 'title' is longer than {MAX_QUEST_TITLE} characters")
+        if len(desc) > MAX_QUEST_DESC:
+            errors.append(f"{where}: 'description' is {len(desc)} characters; the limit is {MAX_QUEST_DESC}")
+        if role is not None and role not in roles:
+            errors.append(f"{where}: role '{role}' is not defined in story.yaml")
+        quests[quest_id] = Quest(id=quest_id, title=title, description=desc, role=role)
+    return quests
 
 
 def _parse_roles(raw: Any, errors: list[str]) -> dict[str, Role]:
@@ -166,6 +205,8 @@ def _parse_choice(raw: Any, where: str, errors: list[str]) -> Choice | None:
         sets_flags=_tuple_of_str(raw.get("sets_flags"), f"{where}.sets_flags", errors),
         clears_flags=_tuple_of_str(raw.get("clears_flags"), f"{where}.clears_flags", errors),
         result_text=raw.get("result_text"),
+        starts_quests=_tuple_of_str(raw.get("starts_quests"), f"{where}.starts_quests", errors),
+        completes_quests=_tuple_of_str(raw.get("completes_quests"), f"{where}.completes_quests", errors),
     )
 
 
@@ -296,6 +337,7 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
         errors.append(f"story.yaml: start_scene '{start}' is not a scene that exists")
 
     roles = _parse_roles(meta.get("roles"), errors)
+    quests = _parse_quests(story_dir / "quests.yaml", roles, errors)
 
     min_p, max_p = meta.get("min_players", 1), meta.get("max_players", 1)
     if not (isinstance(min_p, int) and isinstance(max_p, int) and 1 <= min_p <= max_p <= 10):
@@ -330,6 +372,19 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
             for flag in (*c.requires.flags, *c.requires.not_flags):
                 if flag not in set_flags:
                     report.warnings.append(f"{where}: checks flag '{flag}', but no choice ever sets it")
+            r = c.requires
+            for quest_id in (*c.starts_quests, *c.completes_quests, *r.quests_active, *r.quests_done,
+                             *r.not_quests_done):
+                if quest_id not in quests:
+                    errors.append(f"{where}: quest '{quest_id}' is not defined in quests.yaml")
+
+    started = {q for s in scenes.values() for c in s.choices for q in c.starts_quests}
+    completed = {q for s in scenes.values() for c in s.choices for q in c.completes_quests}
+    for quest_id in quests:
+        if quest_id not in started and quest_id not in completed:
+            report.warnings.append(f"quests.yaml › {quest_id}: no choice starts or completes this quest")
+        elif quest_id not in completed:
+            report.warnings.append(f"quests.yaml › {quest_id}: no choice completes this quest")
 
     if errors:
         report.errors.extend(errors)
@@ -345,6 +400,7 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
         min_players=min_p,
         max_players=max_p,
         roles=roles,
+        quests=quests,
     )
     report.warnings.extend(_reachability_warnings(story))
     return story

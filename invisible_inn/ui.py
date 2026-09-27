@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING
 import discord
 
 from .content.models import Story
-from .engine import ChoiceResult, GameState, choice_label, options_for, scene_text
+from .engine import ChoiceResult, GameState, choice_label, options_for, scene_text, visible_quests
 
 if TYPE_CHECKING:
     from .cogs.adventure import Adventure
@@ -26,6 +26,9 @@ EMBED_COLOUR = discord.Colour(0x6B4E9B)
 ENDING_COLOUR = discord.Colour(0x3E7C59)
 MAX_BUTTONS = 5  # one row; more choices than this switch to a dropdown menu
 EMBED_DESCRIPTION_LIMIT = 4096
+FIELD_VALUE_LIMIT = 1024
+EMBED_TOTAL_LIMIT = 6000
+MAX_FIELDS = 25
 
 BUTTON_TEMPLATE = r"inn:c:(?P<session>\d+):(?P<turn>\d+):(?P<choice>[a-z0-9_]+)"
 SELECT_TEMPLATE = r"inn:s:(?P<session>\d+):(?P<turn>\d+)"
@@ -164,6 +167,11 @@ def scene_embed(story: Story, state: GameState, result: ChoiceResult | None = No
         lines = [f"➕ {story.item_name(i)}" for i in result.gained]
         lines += [f"➖ {story.item_name(i)}" for i in result.lost]
         embed.add_field(name="Inventory", value="\n".join(lines), inline=False)
+    if result and (result.quests_started or result.quests_completed):
+        lines = [f"📜 New quest: **{story.quest_title(q)}**" for q in result.quests_started]
+        lines += [f"✅ Quest complete: **{story.quest_title(q)}**" for q in result.quests_completed]
+        lines.append("-# See your quests with /quests")
+        embed.add_field(name="Quests", value="\n".join(lines), inline=False)
 
     if scene.ending:
         embed.set_footer(text="The End · use /start to play again")
@@ -183,6 +191,45 @@ def render_scene(story: Story, state: GameState, session_id: int,
     embed = scene_embed(story, state, result)
     view = None if story.scene(state.scene_id).ending else build_choice_view(story, state, session_id)
     return embed, view
+
+
+def quests_embed(story: Story, state: GameState) -> discord.Embed:
+    active, completed = visible_quests(story, state)
+    embed = discord.Embed(title="Quests", colour=EMBED_COLOUR)
+    if not active and not completed:
+        embed.description = "You haven't discovered any quests yet."
+        return embed
+    # Completed quests are listed by title only, packed into as few fields as fit.
+    done_chunks: list[str] = []
+    for quest in completed:
+        line = f"✅ ~~{quest.title}~~"
+        if done_chunks and len(done_chunks[-1]) + 1 + len(line) <= FIELD_VALUE_LIMIT:
+            done_chunks[-1] += "\n" + line
+        else:
+            done_chunks.append(line[:FIELD_VALUE_LIMIT])
+    # Discord allows 25 fields per embed. Active quests (one field each) come first.
+    # Keep room for the first "Completed" field and a footer.
+    reserved = (len("Completed") + len(done_chunks[0]) if done_chunks else 0) + 50
+    room = MAX_FIELDS - min(len(done_chunks), MAX_FIELDS - 1)
+    shown = 0
+    for quest in active[:room]:
+        name = f"📜 {quest.title}" + (" · secret" if quest.role else "")
+        value = quest.description or "​"
+        if len(embed) + len(name) + len(value) > EMBED_TOTAL_LIMIT - reserved:
+            break
+        embed.add_field(name=name, value=value, inline=False)
+        shown += 1
+    shown_done = 0
+    for i, chunk in enumerate(done_chunks[: MAX_FIELDS - len(embed.fields)]):
+        name = "Completed" if i == 0 else "​"
+        if len(embed) + len(name) + len(chunk) > EMBED_TOTAL_LIMIT - 50:
+            break
+        embed.add_field(name=name, value=chunk, inline=False)
+        shown_done += chunk.count("\n") + 1
+    hidden = (len(active) - shown) + (len(completed) - shown_done)
+    if hidden:
+        embed.set_footer(text=f"…and {hidden} more not shown")
+    return embed
 
 
 def inventory_embed(story: Story, state: GameState) -> discord.Embed:

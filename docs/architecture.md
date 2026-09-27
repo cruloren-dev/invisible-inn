@@ -73,8 +73,30 @@ sessions         id, guild_id, channel_id, thread_id, owner_id, story_id,
 session_players  session_id, user_id, role (owner|player)
 ```
 
-`state` is `GameState` as JSON: `{scene_id, turn, inventory[], flags[], roles[]}`.
-Missing keys get defaults, so games saved before a field existed still load.
+`state` is `GameState` as JSON: `{scene_id, turn, inventory[], flags[], roles[],
+quests{id: active|completed}}`. Missing keys get defaults, so games saved before
+a field existed still load.
+
+### Quests
+
+Quests are defined in `quests.yaml` (title, description, optional `role` for a
+secret quest) and changed by choices (`starts_quests`, `completes_quests`).
+`GameState.quests` only holds quests the story has introduced, in the order they
+were discovered, which is what makes a quest invisible until it's introduced.
+`engine.visible_quests` filters secret quests to the party's roles, and `/quests`
+replies privately.
+
+Built to grow (the plan is 10 secret quests per role plus shared quests):
+- The quest card packs completed quests into as few fields as fit and stays
+  within Discord's 25-field / 6000-character embed limits, with a "…and N more"
+  footer if it has to drop some.
+- Quest state is a status per quest, so adding steps or objectives later means
+  adding to `Quest` and to the stored status, not redesigning.
+- **For group play:** scene announcements ("📜 New quest: …") are posted in the
+  shared thread. For secret quests, v1.1 needs to replace that with the agreed
+  "secret quest notification" (others learn *that* something happened, not
+  what). `visible_quests` must also filter by the asking player's role rather
+  than the party's.
 
 ### Roles
 

@@ -161,6 +161,18 @@ class AdventureFlowTests(unittest.IsolatedAsyncioTestCase):
         i = await self.pick_role(999, "scholar")
         self.assertIn("isn't your adventure", i.response.send_message.call_args.args[0])
 
+    async def test_quests_command_is_private_and_lists_quests(self):
+        await self.pick_role(100, "scholar")
+        await self.click(100, 0, "step_in")
+        i = fake_interaction(100)
+        i.guild_id = 1
+        i.channel = MagicMock(spec=discord.Thread)
+        i.channel.id = 3
+        await self.cog.quests.callback(self.cog, i)
+        kwargs = i.response.send_message.call_args.kwargs
+        self.assertTrue(kwargs["ephemeral"])
+        self.assertEqual(kwargs["embed"].fields[0].name, "📜 Who Runs This Place?")
+
     async def test_button_custom_id_round_trips(self):
         from invisible_inn.ui import ChoiceButton
         button = ChoiceButton(self.session.id, 4, "take_key", label="Take")

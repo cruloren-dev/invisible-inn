@@ -127,6 +127,21 @@ class Adventure(commands.Cog):
             return
         await interaction.response.send_message(embed=ui.inventory_embed(story, session.state), ephemeral=True)
 
+    # ----------------------------------------------------------------- /quests
+    @app_commands.command(name="quests", description="See your quests, in progress and completed.")
+    @app_commands.guild_only()
+    async def quests(self, interaction: discord.Interaction) -> None:
+        session = await self._session_for(interaction)
+        if session is None:
+            await interaction.response.send_message("You don't have an adventure in progress.", ephemeral=True)
+            return
+        story = self.bot.stories.get(session.story_id)
+        if story is None:
+            await interaction.response.send_message("That story is no longer available.", ephemeral=True)
+            return
+        # Only the asker sees this, which keeps secret quests secret in group play later.
+        await interaction.response.send_message(embed=ui.quests_embed(story, session.state), ephemeral=True)
+
     # ------------------------------------------------------------------- /quit
     @app_commands.command(name="quit", description="End your current adventure.")
     @app_commands.guild_only()
@@ -155,6 +170,7 @@ class Adventure(commands.Cog):
             description=(
                 "`/start` — begin an adventure in a private thread\n"
                 "`/inventory` — see what you're carrying\n"
+                "`/quests` — see your quests, in progress and completed\n"
                 "`/quit` — end your current adventure\n\n"
                 "Make choices with the buttons (or the menu) under each scene."
             ),
