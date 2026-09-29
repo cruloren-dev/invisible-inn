@@ -37,6 +37,7 @@ guest_book_parlor:
         roles: [rogue]
         not_flags: [searched_armchairs]
       sets_flags: [searched_armchairs]
+      gives: [four_buttons, dragon_scale, warm_coin]
       result_text: |
         Under the third cushion: four buttons, a dragon's scale, and a coin that
         is bright and warm and definitely not from any currency you know.
