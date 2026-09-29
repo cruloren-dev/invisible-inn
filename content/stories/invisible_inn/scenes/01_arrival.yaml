@@ -120,6 +120,7 @@ foyer_arrival:
         roles: [rogue]
         not_flags: [checked_desk]
       sets_flags: [checked_desk]
+      gives: [foyer_mint]
       result_text: |
         Empty, apart from a single mint and a sticky note: "Yes, I know you're
         looking. Help yourself to the mint." You take the mint. It feels like

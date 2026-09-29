@@ -27,3 +27,19 @@ memory_ink:
 forbidden_journal:
   name: Journal in Your Handwriting
   description: Bound in blue leather and written in a cipher only you could have invented. You'd rather nobody asked about it.
+
+foyer_mint:
+  name: Front Desk Mint
+  description: Individually wrapped and smugly fresh. It was left there for you, which is somehow worse.
+
+four_buttons:
+  name: Four Buttons
+  description: Mismatched, and all from coats nobody's admitted to owning.
+
+dragon_scale:
+  name: Dragon's Scale
+  description: Palm-sized, faintly iridescent and still slightly warm. Nobody in the inn has mentioned a dragon.
+
+warm_coin:
+  name: Bright Warm Coin
+  description: Not from any currency you know. It's warm like a hand you just let go of.
