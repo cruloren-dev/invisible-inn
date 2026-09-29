@@ -112,7 +112,20 @@ player in group play. The engine uses it to:
 - tag such choices with the role, e.g. "[Scholar] …" (`engine.choice_label`). The
   agreed group-play rule is that role choices are visible to everyone and labelled;
 - use a scene's `role_text` for a party of exactly one role, and the shared `text`
-  otherwise (`engine.scene_text`).
+  otherwise (`engine.scene_text`). A choice's `role_result_text` works the same
+  way for its `result_text` (`engine.result_text`);
+- hide a choice from a role with `requires: {not_roles: [...]}`, for choices about
+  a character that role *is* ("Let Sable pick the lock", hidden from the Rogue).
+  Unlike `roles`, it adds no tag to the button.
+
+`show_locked` (a greyed-out button) is for teasing something the player can unlock
+by playing. `engine.options_for` therefore never shows a choice whose **role**
+conditions the party fails, greyed out or not (`engine.role_allowed`). Otherwise the
+Scholar would see the Rogue's greyed-out buttons.
+
+Each playable role is walked separately by the story checker (`_stuck_warnings` in
+`content/loader.py`) and by `tests/test_playthroughs.py`, which plays the stories
+at random as every role, looking for dead ends and leaked buttons.
 
 For group play, the click handler will also need to check that the clicker plays
 the choice's role. That means storing which player has which role (e.g. a new

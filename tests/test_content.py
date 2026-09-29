@@ -71,6 +71,112 @@ class ValidationTests(unittest.TestCase):
         self.assertIn("'rogue' is not a role", joined)
         self.assertIn("role 'bard' is not defined", joined)
 
+    def test_role_result_text_loads_and_is_checked(self):
+        story, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - id: go
+                  label: Go
+                  goto: start
+                  result_text: Shared.
+                  role_result_text: {scholar: Scholar's version}
+        """, story_extra=self.ROLES)
+        self.assertEqual(report.errors, [])
+        self.assertEqual(story.scene("start").choice("go").role_result_text, {"scholar": "Scholar's version"})
+
+    def test_reports_unknown_role_in_role_result_text(self):
+        story, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: go, label: Go, goto: start, role_result_text: {bard: La la}}
+        """, story_extra=self.ROLES)
+        self.assertIsNone(story)
+        self.assertIn("role_result_text: 'bard' is not a role", "\n".join(report.errors))
+
+    def test_reports_unknown_role_in_not_roles(self):
+        story, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: go, label: Go, goto: start, requires: {not_roles: [bard]}}
+        """, story_extra=self.ROLES)
+        self.assertIsNone(story)
+        self.assertIn("role 'bard' is not defined", "\n".join(report.errors))
+
+    def test_stuck_check_respects_not_roles(self):
+        # Every choice is for someone else, so the Rogue has nothing here.
+        _, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: a, label: A, goto: end, requires: {not_roles: [rogue]}}
+                - {id: b, label: B, goto: end, requires: {roles: [scholar]}}
+            end: {title: End, text: Bye, ending: true}
+        """, story_extra="""
+            roles:
+              scholar: {name: Scholar}
+              rogue: {name: Rogue}
+        """)
+        self.assertIn("has no choices for the Rogue", "\n".join(report.warnings))
+        self.assertNotIn("for the Scholar", "\n".join(report.warnings))
+
+    def test_stuck_check_is_per_role(self):
+        # The Scholar has a way on, but the Rogue's only choices need an item nobody can get.
+        _, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: read, label: Read, goto: end, requires: {roles: [scholar]}}
+                - {id: pick, label: Pick, goto: end, requires: {roles: [rogue], items: [key]}}
+            end: {title: End, text: Bye, ending: true}
+        """, "key: {name: Key}\n", story_extra="""
+            roles:
+              scholar: {name: Scholar}
+              rogue: {name: Rogue}
+        """)
+        stuck = [w for w in report.warnings if "stuck" in w]
+        self.assertEqual(len(stuck), 1)
+        self.assertIn("for the Rogue", stuck[0])
+
+    def test_stuck_check_reports_a_role_with_no_choices(self):
+        _, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: read, label: Read, goto: end, requires: {roles: [scholar]}}
+            end: {title: End, text: Bye, ending: true}
+        """, story_extra="""
+            roles:
+              scholar: {name: Scholar}
+              rogue: {name: Rogue}
+        """)
+        self.assertIn("has no choices for the Rogue", "\n".join(report.warnings))
+
+    def test_role_only_choices_with_complementary_pairs_do_not_warn(self):
+        _, report = self.load("""
+            start:
+              title: Start
+              text: Hello
+              choices:
+                - {id: a, label: A, goto: end, requires: {roles: [rogue], items: [key]}}
+                - {id: b, label: B, goto: end, requires: {roles: [rogue], not_items: [key]}}
+                - {id: c, label: C, goto: end, requires: {roles: [scholar]}}
+            end: {title: End, text: Bye, ending: true}
+        """, "key: {name: Key}\n", story_extra="""
+            roles:
+              scholar: {name: Scholar}
+              rogue: {name: Rogue}
+        """)
+        self.assertEqual([w for w in report.warnings if "stuck" in w or "no choices" in w], [])
+
     def test_reports_label_too_long_with_role_tag(self):
         label = "x" * 75  # fits alone, but not with "[Scholar] " in front
         story, report = self.load(f"""

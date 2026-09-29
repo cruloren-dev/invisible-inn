@@ -31,6 +31,10 @@ class Requirements:
     """Story flags that must NOT be set."""
     roles: tuple[str, ...] = ()
     """Role ids, any one of which must be in the party (e.g. only the Scholar)."""
+    not_roles: tuple[str, ...] = ()
+    """Role ids that must NOT be in the party. For choices about a character the
+    player *is* (e.g. "Let Sable pick the lock", which the Rogue can't choose).
+    Unlike ``roles``, this doesn't add a role tag to the button."""
     quests_active: tuple[str, ...] = ()
     """Quests that must be in progress (started, not yet completed)."""
     quests_done: tuple[str, ...] = ()
@@ -40,7 +44,14 @@ class Requirements:
 
     def is_empty(self) -> bool:
         return not (self.items or self.not_items or self.flags or self.not_flags or self.roles
-                    or self.quests_active or self.quests_done or self.not_quests_done)
+                    or self.not_roles or self.quests_active or self.quests_done or self.not_quests_done)
+
+    def allows_role(self, role_id: str | None) -> bool:
+        """Could a player of this role ever pass the role conditions? (Says nothing about
+        items, flags or quests.)"""
+        if self.roles and role_id not in self.roles:
+            return False
+        return role_id not in self.not_roles
 
 
 @dataclass(frozen=True)
@@ -62,6 +73,8 @@ class Choice:
     """Optional line shown when this choice is picked (e.g. "The key is cold.")."""
     starts_quests: tuple[str, ...] = ()
     completes_quests: tuple[str, ...] = ()
+    role_result_text: dict[str, str] = field(default_factory=dict)
+    """Text to show instead of ``result_text`` when the party is a single role, keyed by role id."""
 
 
 @dataclass(frozen=True)

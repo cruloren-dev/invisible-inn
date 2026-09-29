@@ -1,5 +1,6 @@
 # Milestone 3 (the library) and Milestone 5 (the Scholar's secret). DRAFT: edit freely.
-# The Rogue and Mage will get their own secret rooms here in later versions.
+# The Rogue's secret room, the vault, is reached from here too: see 04b_rogue_vault.yaml.
+# The Mage will get a secret room here in a later version.
 
 library_chaos:
   title: The Library
@@ -30,7 +31,32 @@ library_chaos:
       At the far end, behind a velvet rope, a door is marked **RESTRICTED**.
 
       "The inn," says Fennick, "is being *extremely* rude."
+    rogue: |
+      The humming door opens onto a library that goes up further than you can
+      see. The books are rearranging themselves: sliding along shelves, swapping
+      places, occasionally arguing. One of them shuffles aside to let you pass,
+      which no book has ever done in your entire career.
+
+      Three shelves seem to lean toward the three of you. Tamsin drifts toward
+      *Research That Was Banned for Very Good Reasons*, stops, and pretends to
+      be interested in something else. Fennick stops dead in front of *Spells
+      You Should Never Have Started*. And the one nearest you is labelled
+      *Treasures Best Left Unfound*, in gold letters that seem to wink.
+
+      One of its books sticks out a little further than the rest, as if someone
+      pushed it, and then pushed it back.
+
+      "The inn," says Fennick, "is being *extremely* rude."
   choices:
+    - id: open_vault_door
+      label: Push the book that sticks out
+      goto: rogue_vault
+      requires:
+        roles: [rogue]
+        flags: [saw_vault_hint]
+      show_locked: true   # greyed out until you've read the pencilled note in the guest book
+      sets_flags: [visited_vault]
+      starts_quests: [clear_the_air]
     - id: follow_shelf_mark
       label: Follow the shelf mark to the Restricted section
       goto: scholar_archive

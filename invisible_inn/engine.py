@@ -93,14 +93,20 @@ def with_roles(state: GameState, roles: list[str]) -> GameState:
                      flags=set(state.flags), roles=list(roles), quests=dict(state.quests))
 
 
+def role_allowed(req: Requirements, state: GameState) -> bool:
+    """Do the party's roles satisfy the role conditions (and nothing else)?"""
+    return ((not req.roles or any(r in state.roles for r in req.roles))
+            and not any(r in state.roles for r in req.not_roles))
+
+
 def meets(req: Requirements, state: GameState) -> bool:
     inv = set(state.inventory)
     return (
-        all(i in inv for i in req.items)
+        role_allowed(req, state)
+        and all(i in inv for i in req.items)
         and not any(i in inv for i in req.not_items)
         and all(f in state.flags for f in req.flags)
         and not any(f in state.flags for f in req.not_flags)
-        and (not req.roles or any(r in state.roles for r in req.roles))
         and all(state.quests.get(q) == QUEST_ACTIVE for q in req.quests_active)
         and all(state.quests.get(q) == QUEST_COMPLETED for q in req.quests_done)
         and not any(state.quests.get(q) == QUEST_COMPLETED for q in req.not_quests_done)
@@ -140,18 +146,30 @@ def scene_text(scene: Scene, state: GameState) -> str:
     return scene.text
 
 
+def result_text(choice: Choice, state: GameState) -> str | None:
+    """What happened when the choice was made, in the party's own words if there's one role."""
+    if len(state.roles) == 1:
+        return choice.role_result_text.get(state.roles[0], choice.result_text)
+    return choice.result_text
+
+
 def choice_label(story: Story, choice: Choice) -> str:
     """The label players see, tagged with the role for role-only choices."""
     return role_label(choice.label, [story.role_name(r) for r in choice.requires.roles])
 
 
 def options_for(story: Story, state: GameState) -> list[ChoiceOption]:
-    """Choices to show the player. Unmet choices are hidden unless ``show_locked``."""
+    """Choices to show the player. Unmet choices are hidden unless ``show_locked``.
+
+    ``show_locked`` teases something the player could get by doing something (holding
+    a key, reading a note). A choice that belongs to another role is never shown,
+    greyed out or not, because no amount of play would unlock it for this player.
+    """
     scene = story.scene(state.scene_id)
     options = []
     for c in scene.choices:
         ok = meets(c.requires, state)
-        if ok or c.show_locked:
+        if ok or (c.show_locked and role_allowed(c.requires, state)):
             options.append(ChoiceOption(choice=c, enabled=ok))
     return options
 

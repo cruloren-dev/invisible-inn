@@ -9,8 +9,8 @@
 >
 > **In v1:**
 > - **Role choice.** The player picks Scholar, Rogue or Mage when a game starts. The
->   **Scholar** is written and playable first. The Rogue and Mage are shown as
->   "coming soon" until their content exists.
+>   **Scholar** was written and playable first, and the **Rogue** followed
+>   (2026-09-29). The Mage is shown as "coming soon" until their content exists.
 > - **Role-locked choices**, labelled with the role, e.g. "[Scholar] Examine the runes".
 > - **Role-specific scene text**, falling back to the shared text.
 > - **Quests.** `/quests` shows the player's active and completed quests. A quest

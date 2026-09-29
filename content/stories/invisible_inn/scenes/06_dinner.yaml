@@ -17,7 +17,50 @@ dining_room:
     "So. Anyone find anything *interesting* today?"
 
     Nobody answers. The candles lean in.
+  role_text:
+    rogue: |
+      The dining room has laid a table for exactly three. Candles light
+      themselves as you sit down. The food is wonderful, and every plate is a
+      small act of emotional sabotage.
+
+      Your bread roll clinks when you pick it up. Fennick has been served a cup
+      of tea from the kitchen kettle, and is staring at it like it might
+      apologise. Tamsin's soup is alphabet soup, and the letters are drifting
+      into formation. She keeps covering them with her sleeve.
+
+      For a while, the only sound is cutlery. Then Tamsin says, very casually,
+      "So. Anyone find anything *interesting* today?"
+
+      Nobody answers. The candles lean in.
   choices:
+    - id: peek_soup
+      label: Glance at Tamsin's soup
+      goto: dining_room
+      requires:
+        roles: [rogue]
+        not_flags: [peeked_soup]
+      sets_flags: [peeked_soup]
+      result_text: T. U. E. S. D. A. Y. Tamsin covers the last letter with her spoon and gives you a look. You saw nothing. You saw everything.
+    - id: break_roll
+      label: Break open your bread roll
+      goto: dining_room
+      requires:
+        roles: [rogue]
+        not_flags: [broke_roll]
+      sets_flags: [broke_roll]
+      gives: [vault_key]
+      result_text: |
+        You break it open under the table. Inside is a small brass key, warm to
+        the touch, engraved with one word, VAULT, and a tiny drawing of a
+        teacup. It's the kind of thing you'd have spent a month trying to steal,
+        and it has just handed itself over with butter. You pocket it before it
+        stops spinning.
+    - id: slip_out_with_silver
+      label: Slip out with the silver still up your sleeves
+      goto: dinner_caught_rogue
+      requires:
+        roles: [rogue]
+        items: [pocketed_silver]
     - id: read_soup
       label: Read the letters in your soup
       goto: dining_room
@@ -30,6 +73,7 @@ dining_room:
       label: Ask Sable why her bread roll clinks
       goto: dining_room
       requires:
+        not_roles: [rogue]   # the Rogue *is* Sable: she breaks open the roll herself
         not_flags: [asked_about_roll]
       sets_flags: [asked_about_roll]
       result_text: |
@@ -49,12 +93,20 @@ dining_room:
       label: Excuse yourself from the table
       goto: dinner_caught
       requires:
+        not_roles: [rogue]   # the journal is the Scholar's; the Rogue has her own way out below
         items: [forbidden_journal]
     - id: excuse
       label: Excuse yourself from the table
       goto: inn_responds
       requires:
+        not_roles: [rogue]
         not_items: [forbidden_journal]
+      result_text: Nobody stops you. Nobody looks up. The inn creaks, as if it's making a note.
+    - id: excuse_rogue
+      label: Excuse yourself from the table
+      goto: inn_responds
+      requires:
+        not_roles: [scholar]   # the Scholar has her own two versions above
       result_text: Nobody stops you. Nobody looks up. The inn creaks, as if it's making a note.
 
 dinner_caught:
@@ -100,6 +152,49 @@ dinner_caught:
         that?" she says. "Under your coat." Memory ink, it turns out, doesn't
         change what people notice. Only what they remember noticing.
 
+dinner_caught_rogue:
+  title: Is That the Good Spoons?
+  text: |
+    You push back your chair. Your sleeves clink. Not a small clink: a
+    *cheerful* clink, like a wind chime made of cutlery, which is exactly what
+    it is.
+
+    Tamsin's eyes narrow. Fennick's eyebrows climb. "Is that," he says slowly,
+    "the good spoons?"
+
+    Three spoons, a fork and, inexplicably, the sugar tongs. You don't remember
+    taking the tongs. You almost certainly took the tongs.
+
+    The candles stop flickering. Even the soup is listening.
+  choices:
+    - id: blame_bracelets
+      label: '"They''re bracelets. Very loud ones."'
+      goto: inn_responds
+      sets_flags: [told_a_lie]
+      result_text: |
+        Tamsin doesn't believe you, and she lets you see that she doesn't
+        believe you. As you leave, a spoon slides out of your sleeve and lands in
+        the soup with a plop. Nobody says a word. Deep in the walls, the inn
+        creaks disapprovingly.
+    - id: hand_back_silver
+      label: Lay the silver on the table, one piece at a time
+      goto: inn_responds
+      takes: [pocketed_silver]
+      sets_flags: [returned_silver]
+      result_text: |
+        You lay it out in a neat row. Tamsin nods, very slowly, as if you've
+        passed a test she hadn't mentioned. "And the tongs?" "And the tongs."
+        The lamps in the hall brighten, very slightly, as you pass.
+    - id: coin_trick
+      label: Distract them with a coin trick
+      goto: inn_responds
+      sets_flags: [distracted_dinner]
+      result_text: |
+        You produce a coin from behind Fennick's ear. He is delighted. Tamsin is
+        not fooled, but she lets you go with a look that says noted. As you
+        leave, the sugar tongs fall out of your sleeve and land in front of her
+        plate.
+
 inn_responds:
   title: The Inn Has Opinions
   text: |
@@ -116,7 +211,34 @@ inn_responds:
     small, frustrated fizzing noise.
 
     The inn, it seems, has opinions. And it has decided to share them.
+  role_text:
+    rogue: |
+      The hallway outside the dining room is not the hallway you walked down
+      to get there.
+
+      The doors have swapped places. The staircase now goes down to go up. A
+      portrait of a stern woman in an apron follows you with her eyes, and then,
+      when you look back, with her whole frame. Every corridor you try curves
+      gently back toward the dining room, like a hint that isn't being subtle.
+
+      From somewhere ahead, you hear Tamsin and Fennick. They are, unmistakably,
+      arguing. From somewhere to the left comes the smell of burnt toast and a
+      small, frustrated fizzing noise. And if you listen, really listen, you can
+      hear something else: a lock, deep in the walls, wanting to be opened.
+
+      The inn, it seems, has opinions. And it has decided to share them.
   choices:
+    - id: follow_the_lock
+      label: Follow the sound of the lock
+      goto: vault_open
+      requires:
+        roles: [rogue]
+        items: [vault_key]
+      sets_flags: [visited_vault]
+      starts_quests: [clear_the_air]
+      result_text: |
+        You don't choose the corridor so much as the corridor chooses you. It
+        smells of old coins, and it gets very quiet.
     - id: to_kitchen_fizz
       label: Follow the smell of burnt toast
       goto: kitchen_attempt
@@ -170,6 +292,19 @@ kitchen_attempt:
         You know this spell better than anyone. You wrote it. It still doesn't
         work. The kettle grows eyebrows to match the moustache. The magic feels
         stuck, like the whole inn is holding its breath.
+    - id: pick_kettle_lock
+      label: Pick the tiny lock under the kettle's lid
+      goto: kitchen_attempt
+      requires:
+        roles: [rogue]
+        not_flags: [picked_kettle_lock]
+      sets_flags: [picked_kettle_lock]
+      result_text: |
+        There's a lock under the lid. There's a lock under everything in this
+        inn, you're beginning to realise. It clicks open before you've finished
+        insulting it, and the moustache twitches, possibly in gratitude. "What
+        did you do?" says Fennick. "Nothing," you say. He gives you a look.
+        "That's progress."
     - id: leave_fennick
       label: Leave Fennick to it
       goto: inn_responds

@@ -23,6 +23,8 @@ arrival:
     - id: leave
       label: Walk away
       goto: ending_walk_away
+      requires:
+        not_roles: [mage]     # hidden from the Mage (no role tag on the button, unlike `roles`)
 
 sign:
   title: The Blank Sign

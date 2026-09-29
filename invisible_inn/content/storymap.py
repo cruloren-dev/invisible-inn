@@ -63,6 +63,7 @@ def describe_requirements(story: Story, choice: Choice) -> str:
     r = choice.requires
     parts = []
     parts += [f"{story.role_name(x)} only" for x in r.roles]
+    parts += [f"not for the {story.role_name(x)}" for x in r.not_roles]
     parts += [f"has {story.item_name(x)}" for x in r.items]
     parts += [f"doesn't have {story.item_name(x)}" for x in r.not_items]
     parts += [f"flag `{x}`" for x in r.flags]
@@ -91,23 +92,32 @@ def describe_effects(story: Story, choice: Choice) -> str:
     return "; ".join(parts) or "—"
 
 
-def _depths(story: Story) -> dict[str, int]:
-    """How many steps each scene is from the start (breadth-first)."""
+def _available(scene, role: str | None) -> list[Choice]:
+    """The choices a player of ``role`` can ever see (all of them if ``role`` is None)."""
+    return [c for c in scene.choices if role is None or c.requires.allows_role(role)]
+
+
+def _depths(story: Story, role: str | None = None) -> dict[str, int]:
+    """How many steps each scene is from the start (breadth-first), for one role's choices."""
     depth = {story.start_scene: 0}
     queue = [story.start_scene]
     while queue:
         scene_id = queue.pop(0)
-        for c in story.scenes[scene_id].choices:
+        for c in _available(story.scenes[scene_id], role):
             if c.goto not in depth:
                 depth[c.goto] = depth[scene_id] + 1
                 queue.append(c.goto)
     return depth
 
 
-def diagram(story: Story) -> str:
+def diagram(story: Story, role: str | None = None) -> str:
+    """A Mermaid flowchart of the story. With ``role``, only the scenes and choices
+    that role can reach; without, every scene and choice."""
+    depth = _depths(story, role)
+    scenes = [s for s in story.scenes.values() if role is None or s.id in depth]
     lines = ["```mermaid", "flowchart TD"]
-    for scene in story.scenes.values():
-        stays = [c for c in scene.choices if c.goto == scene.id]
+    for scene in scenes:
+        stays = [c for c in _available(scene, role) if c.goto == scene.id]
         label = _mermaid_text(scene.title)
         if stays:
             label += f"<br/><small>↺ {len(stays)} action{'s' if len(stays) != 1 else ''} here</small>"
@@ -120,10 +130,9 @@ def diagram(story: Story) -> str:
         lines.append(f"    {_node(scene.id)}{shape}")
     # Plain arrows back to earlier scenes ("Back to the main hall") are drawn without
     # labels, which keeps the diagram readable; the tables list them in full.
-    depth = _depths(story)
     edges: dict[tuple[str, str], list[Choice]] = {}
-    for scene in story.scenes.values():
-        for c in scene.choices:
+    for scene in scenes:
+        for c in _available(scene, role):
             if c.goto != scene.id:
                 edges.setdefault((scene.id, c.goto), []).append(c)
     for (src, dst), choices in edges.items():
@@ -137,7 +146,7 @@ def diagram(story: Story) -> str:
         text = ("🔒 " if locked else "") + text
         arrow = "-.->" if locked else "-->"
         lines.append(f'    {_node(src)} {arrow}|"{_mermaid_text(text)}"| {_node(dst)}')
-    endings = [_node(s.id) for s in story.scenes.values() if s.ending]
+    endings = [_node(s.id) for s in scenes if s.ending]
     lines.append("    classDef ending fill:#3E7C59,color:#fff,stroke:#2b5a40")
     lines.append("    classDef start fill:#6B4E9B,color:#fff,stroke:#4d3870")
     if endings:
@@ -161,8 +170,12 @@ def scene_tables(story: Story) -> str:
         out.append("|---|---|---|---|")
         for c in scene.choices:
             target = "*(stays here)*" if c.goto == scene.id else f"{story.scene(c.goto).title} (`{c.goto}`)"
+            effects = describe_effects(story, c)
+            if c.role_result_text:
+                own = ", ".join(story.role_name(r) for r in c.role_result_text)
+                effects = ("" if effects == "—" else effects + "; ") + f"own result text for {own}"
             out.append(f"| {_cell(_label(story, c))} | {_cell(target)} | {_cell(describe_requirements(story, c))}"
-                       f" | {_cell(describe_effects(story, c))} |")
+                       f" | {_cell(effects)} |")
         out.append("")
     return "\n".join(out)
 
@@ -182,9 +195,17 @@ def story_map(story: Story, warnings: list[str]) -> str:
         "\"↺ N actions here\" counts choices that stay in the same scene. Arrow labels are shortened; the "
         "tables below have the full text and every condition.",
         "",
-        diagram(story),
-        "",
     ]
+    playable = [r for r in story.roles.values() if r.playable]
+    if playable:
+        parts += ["Each playable role has its own diagram, showing only the scenes and choices that role "
+                  "can reach. Scenes shared by several roles appear in each.", ""]
+        for role in playable:
+            reachable = _depths(story, role.id)
+            parts += [f"### {role.name}'s path", "",
+                      f"{len(reachable)} scenes reachable.", "", diagram(story, role.id), ""]
+    else:
+        parts += [diagram(story), ""]
     mine = [w for w in warnings if story.id in w or any(s.source_file in w for s in story.scenes.values())]
     if mine:
         parts += ["### Checker warnings", ""] + [f"- ⚠ {_cell(w)}" for w in mine] + [""]

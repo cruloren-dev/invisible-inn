@@ -21,6 +21,12 @@ innkeeper_study:
         *"Feed the stairs on Thursdays." "Room 9 is allergic to optimism."
         "The vault is NOT a metaphor, stop asking." "Kettle: be kind, he's had
         a hard decade."* Sable reads the vault one three times.
+      role_result_text:
+        rogue: |
+          "Feed the stairs on Thursdays." "Room 9 is allergic to optimism." "The
+          vault is NOT a metaphor, stop asking." "Kettle: be kind, he's had a
+          hard decade." You read the vault one three times. Then you check
+          whether anyone saw you reading it a third time.
     - id: tap_crystal
       label: Tap the crystal twice
       goto: crystal_message
@@ -72,3 +78,8 @@ crystal_message:
       result_text: |
         Sable is looking at Fennick. Fennick is looking at the floor. You
         realise they're both waiting for somebody else to go first.
+      role_result_text:
+        rogue: |
+          Tamsin is looking at Fennick. Fennick is looking at the floor. You
+          realise the pair of them are waiting for somebody else to go first,
+          and that somebody is very much not going to be you.

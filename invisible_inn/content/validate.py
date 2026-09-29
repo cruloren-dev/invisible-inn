@@ -18,6 +18,10 @@ from .loader import load_all
 
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # ✔ and ⚠ on older Windows consoles
+    except (AttributeError, ValueError):
+        pass  # not a real console (e.g. captured by a test): leave it alone
     content_dir = Path(argv[0]) if argv else Path("content/stories")
     report = load_all(content_dir)
 

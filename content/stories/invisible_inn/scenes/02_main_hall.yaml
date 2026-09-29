@@ -28,6 +28,19 @@ main_hall:
       Three doors look promising: one marked **PARLOUR**, one that is gently
       *humming* (a library, if you know that particular hum, and you do), and
       one marked **STAFF ONLY**. Sable has already tried that one twice.
+    rogue: |
+      The main hall is tall, round and much bigger than the building looked
+      from outside, which you'd find suspicious in a getaway and reassuring in
+      a hideout. Doors line the walls, and a staircase spirals up past floors
+      that rearrange themselves when you're not looking. Your fingers itch.
+
+      In the middle of the room, on a lectern, sits a rolled-up scroll tied
+      with a ribbon. Nothing else in the inn is tidy, so it stands out. There's
+      no lock on it, which is somehow worse.
+
+      Three doors look promising: one marked **PARLOUR**, one that is gently
+      *humming*, and one marked **STAFF ONLY**. You've already tried that one
+      twice. It's rude, is what it is.
   choices:
     - id: read_scroll
       label: Read the scroll on the lectern
@@ -49,6 +62,8 @@ main_hall:
       show_locked: true   # greyed out until you've pieced together the inn's history
       starts_quests: [why_innkeeper_left]
       result_text: The door that wouldn't open for Sable opens for you. Sable takes this personally.
+      role_result_text:
+        rogue: The door that refused your picks twice swings open the moment you've earned it. You take this personally.
     - id: back_to_foyer
       label: Back to the foyer
       goto: foyer_arrival
@@ -76,6 +91,29 @@ welcome_scroll:
 
     "It says the toast is on," says Fennick, who has clearly stopped
     listening after that.
+  role_text:
+    rogue: |
+      The ribbon unties itself as you reach for it, which you decide not to
+      think about. The handwriting is loopy and in a great hurry.
+
+      > *To whoever the inn has picked (hello!),*
+      >
+      > *I'm off. Don't take it personally. The inn needs keepers, and I've
+      > kept it long enough. The rooms are made up and the toast is on.*
+      >
+      > *There's only one rule: **tend to the inn, and the inn will tend to
+      > you.** It will make more sense later. Probably.*
+      >
+      > *Don't go in the study until you know what this place is. It gets
+      > shy.*
+      >
+      > *— M. Thistlewick, Innkeeper (retired, as of about ten minutes ago)*
+
+      "Picked," you repeat. "Nobody *picks* me. I pick things."
+
+      "It says the toast is on," says Fennick, who has clearly stopped
+      listening after that. Tamsin reads the line about keepers twice, and
+      says nothing at all.
   choices:
     - id: keep_scroll
       label: Roll it up and keep it

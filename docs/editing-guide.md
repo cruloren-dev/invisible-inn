@@ -26,6 +26,7 @@ All story files are in **`content/stories/invisible_inn/`**:
 | `scenes/02_main_hall.yaml` | Milestone 2: the main hall and the Welcome Scroll |
 | `scenes/03_parlor.yaml` | Milestone 3: the parlour and the guest book |
 | `scenes/04_library.yaml` | Milestones 3 and 5: the library and the Scholar's archive |
+| `scenes/04b_rogue_vault.yaml` | Milestone 5, the Rogue's secret: the vault door and the vault itself |
 | `scenes/05_study.yaml` | Milestone 4: the innkeeper's study and message |
 | `scenes/06_dinner.yaml` | Milestones 6–7: the dinner, being nearly caught, the inn rearranging itself, Fennick's reversal, the window onto Little Mumbling |
 | `scenes/07_revelation.yaml` | Milestone 8 (slice version), what happens after confessing, and the three endings |
@@ -161,9 +162,13 @@ More patterns (items, quests, role text) are in [`content-guide.md`](content-gui
   it, and games that are saved in a scene whose id changed can't continue (the
   player has to `/quit`). Change titles and text freely; change ids only when you
   mean to, and fix every `goto` that used the old one (the checker lists them).
-- Every scene needs at least one choice that **every role** can take, or a role
-  could get stuck. The checker warns about scenes where every choice has a
-  condition.
+- Every scene needs a way on for **every playable role**, or that role could get
+  stuck. The checker looks at each role separately and warns about scenes where a
+  role's choices all have conditions, or where a role has no choices at all.
+- **The player is "you".** In the Rogue's story Sable is "you" and the Scholar
+  (placeholder name: Tamsin) is a friend, so scenes that mention Sable need a
+  `role_text` for the Rogue. See "Writing for several roles" in
+  [`content-guide.md`](content-guide.md).
 
 ## Open story questions
 
@@ -173,10 +178,11 @@ story text, it's already in the files. **Writers have the final say:** change
 the text directly, or note a different answer here.
 
 1. **Placeholder names.** ⏳ *Still open.* Replace or confirm: **Sable** (Rogue),
+   **Tamsin** (the Scholar, who only has a name in the Rogue's story so far),
    **Fennick** (Mage), **Madame Thistlewick** (the innkeeper), **Little Mumbling**
    and **memory ink** (the Scholar's past), the **kettle** and **Master Oolong**
-   (Fennick's mentor), the **vault** (Sable's secret). The list is at the top of
-   `story.yaml`.
+   (Fennick's mentor), the **vault**, **Big Marguerite** and **"Fingers"
+   Fitzgerald** (Sable's story). The list is at the top of `story.yaml`.
 2. **Length.** ✏️ *Proposed:* Milestones 6–7 are now drafted in
    `06_dinner.yaml`. A pointed dinner where each plate hints at a secret; the
    Scholar nearly gets caught with the journal; the inn rearranges its corridors;
@@ -197,14 +203,20 @@ the text directly, or note a different answer here.
    Mumbling, (3) decide about the ink, (4) tell your friends. For now, the
    writer's three Scholar quests cover these: *The Forbidden Research* (1 and 4),
    *What Is Memory, Really?* (2) and *Memory Is A Fickle Thing* (3).
-6. **The Rogue and Mage paths.** ✏️ *Partly proposed:* their secret quests are in
-   place and play out in the Scholar's story. *Clear the Air* (Sable) starts
-   when you ask what she's looking for and completes when she confesses. *Cure
-   the Kettle* (Fennick) starts when you're kind to the kettle and completes when
-   all three friends help after the Scholar's confession. A Scholar never sees
-   these quests. ⏳ *Still open:* each role's own route through the library and
-   secret room (Sable's vault, Fennick's notes) before the Rogue and Mage can be
-   played.
+6. **The Rogue and Mage paths.** ✏️ *The Rogue is drafted (PR #15) and playable.*
+   Sable owes a huge debt to Big Marguerite and followed a rumour of the inn's
+   vault. A guest-book note ("Fingers" Fitzgerald, a retired thief) points her to
+   a hidden vault door in the library. The key arrives in her bread roll at
+   dinner, and after dinner the inn lets her in: the vault holds a century of
+   guests' **tips**, and a ledger with her exact debt on it ("It's the asking that
+   counts"). She can take the treasure, leave it, or come clean. Her secret quest,
+   *Clear the Air*, starts at the vault door and completes when she tells her
+   friends. At the revelation Fennick and Tamsin confess as background characters,
+   just as Sable and Fennick do in the Scholar's story. She can nearly get caught
+   at dinner with pocketed silverware, which parallels the Scholar's journal.
+   ⏳ *Still open:* everything about the **Mage** (his route through the library,
+   and his secret room, "Fennick's notes"), and whether the Rogue's vault should
+   let her keep the money.
 7. **Revelation with several players.** ✏️ *Proposed:* each player's
    "confess / keep it / nothing to hide" choice happens in turn around the desk,
    in the order they arrived. The inn only "settles" (and the kettle can only be
