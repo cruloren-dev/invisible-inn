@@ -6,7 +6,7 @@
 
 ## The Invisible Inn
 
-24 scenes · 7 items · 7 quests · roles: Scholar, Rogue, Mage (coming soon)
+24 scenes · 11 items · 7 quests · roles: Scholar, Rogue, Mage (coming soon)
 
 **How to read the diagram:** the slanted box is where the story starts, and rounded green boxes are endings. **Dotted arrows with 🔒** need something first (an item, flag or quest); solid arrows don't, though some disappear after they've been used once. "[Scholar]" marks a choice for one role. "↺ N actions here" counts choices that stay in the same scene. Arrow labels are shortened; the tables below have the full text and every condition.
 
@@ -164,7 +164,7 @@ flowchart TD
 
 | Choice | Leads to | Needs | Does |
 |---|---|---|---|
-| [Rogue] Check the desk drawers | *(stays here)* | Rogue only; not flag `checked_desk` (disappears once that changes) | sets `checked_desk` |
+| [Rogue] Check the desk drawers | *(stays here)* | Rogue only; not flag `checked_desk` (disappears once that changes) | ➕ Front Desk Mint; sets `checked_desk` |
 | Warm up by the fire | *(stays here)* | not flag `warmed_up` (disappears once that changes) | sets `warmed_up` |
 | Follow the smell of toast | The Kitchen (`kitchen`) | — | — |
 | Head deeper into the inn | The Main Hall (`main_hall`) | — | — |
@@ -208,7 +208,7 @@ flowchart TD
 | Choice | Leads to | Needs | Does |
 |---|---|---|---|
 | Open the guest book | The Guest Book (`guest_book_entries`) | — | 📜 starts *The Inn's Chaotic History* |
-| [Rogue] Search the armchairs properly | *(stays here)* | Rogue only; not flag `searched_armchairs` (disappears once that changes) | sets `searched_armchairs` |
+| [Rogue] Search the armchairs properly | *(stays here)* | Rogue only; not flag `searched_armchairs` (disappears once that changes) | ➕ Four Buttons; ➕ Dragon's Scale; ➕ Bright Warm Coin; sets `searched_armchairs` |
 | Ask Sable what she's looking for | *(stays here)* | not for the Rogue; not flag `asked_sable` (disappears once that changes) | sets `asked_sable`; 📜 starts *Clear the Air* |
 | Back to the main hall | The Main Hall (`main_hall`) | — | — |
 
