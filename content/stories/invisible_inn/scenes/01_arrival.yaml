@@ -18,6 +18,28 @@ arrival_storm:
     "That," says Fennick, dripping, "was *not* there a second ago."
 
     "Good," says Sable. "Things that are there are usually locked."
+  role_text:
+    rogue: |
+      The storm has opinions, and all of them are about you.
+
+      Rain comes sideways. Wind steals Fennick's hat for the third time.
+      Tamsin has started reading the raindrops, which is either a very good
+      sign or a very bad one. You've stopped complaining, which is worse than
+      when you were complaining. The three of you haven't travelled together
+      in years, and the weather seems determined to remind you why.
+
+      Then, between one lightning flash and the next, there is a building
+      where there wasn't one: a crooked, cheerful inn with every window lit.
+      The sign above the door is blank. The door itself is ajar, as if
+      somebody just stepped out to check on you.
+
+      "That," says Fennick, dripping, "was *not* there a second ago."
+
+      "Good," you say. "Things that are there are usually locked."
+
+      You say it lightly. You've been chasing a rumour for six weeks: an inn
+      that appears to people who need it, and a vault that nobody believes in.
+      You had not expected the rumour to be *right*.
   choices:
     - id: knock
       label: Knock on the door
@@ -37,9 +59,19 @@ arrival_storm:
     - id: sable_lock
       label: Let Sable pick the lock
       goto: foyer_arrival
+      requires:
+        not_roles: [rogue]   # the Rogue *is* Sable: she has her own version below
       result_text: |
         Sable kneels, produces a lockpick from somewhere, and the door opens by
         itself before she touches it. She looks deeply offended.
+    - id: pick_lock
+      label: Pick the lock
+      goto: foyer_arrival
+      requires:
+        roles: [rogue]
+      result_text: |
+        You kneel, produce a lockpick from somewhere, and the door opens by
+        itself before you touch it. You are deeply, professionally offended.
     - id: keep_walking
       label: Suggest you all keep walking
       goto: arrival_storm
@@ -64,7 +96,34 @@ foyer_arrival:
 
     There's a front desk, but nobody behind it. A small brass bell sits on
     top with a note taped to it: *"Don't bother."*
+  role_text:
+    rogue: |
+      Warmth hits you like a hug from someone who's missed you. A fire crackles
+      in a hearth big enough to park a cart in. Three pairs of slippers wait by
+      the door, in exactly your sizes, which is lovely and also deeply alarming.
+      Nobody measured you. You'd have noticed.
+
+      Fennick holds his hands to the fire and steams gently. Tamsin is reading
+      the ledger on the front desk from a careful distance, as if it might
+      bite. You're already checking the windows, the latches and the
+      second-best hiding places, out of habit and not, you tell yourself, for
+      any particular reason. Somewhere deeper in the inn, something smells like
+      toast.
+
+      There's a front desk, but nobody behind it. A small brass bell sits on
+      top with a note taped to it: *"Don't bother."*
   choices:
+    - id: check_desk
+      label: Check the desk drawers
+      goto: foyer_arrival
+      requires:
+        roles: [rogue]
+        not_flags: [checked_desk]
+      sets_flags: [checked_desk]
+      result_text: |
+        Empty, apart from a single mint and a sticky note: "Yes, I know you're
+        looking. Help yourself to the mint." You take the mint. It feels like
+        losing a round.
     - id: warm_up
       label: Warm up by the fire
       goto: foyer_arrival
@@ -118,6 +177,18 @@ kitchen:
         not_flags: [ate_toast]
       sets_flags: [ate_toast]
       result_text: It's perfect. Of course it's perfect. Sable pockets a second slice "for later".
+      role_result_text:
+        rogue: It's perfect. Of course it's perfect. You pocket a second slice "for later".
+    - id: pocket_spoons
+      label: Pocket a few of the good spoons
+      goto: kitchen
+      requires:
+        roles: [rogue]
+        not_items: [pocketed_silver]
+      gives: [pocketed_silver]
+      result_text: |
+        Three spoons, a fork and (you'll swear later that this was an accident)
+        the sugar tongs. It's just habit. You'll put them back. Probably.
     - id: back_to_foyer
       label: Back to the foyer
       goto: foyer_arrival

@@ -141,6 +141,13 @@ class RenderTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(scene_part.startswith("The moment you cross the threshold"))
         self.assertEqual(outcome, "*You lift the key from its hook. Nobody stops you.*")
 
+    async def test_scene_shows_the_roles_own_result_text(self):
+        for roles, expected in ((["rogue"], "before anyone notices the hook"), (["scholar"], "Nobody stops you.*")):
+            state = engine.GameState("foyer", roles=roles)
+            result = engine.choose(self.story, state, "take_key")
+            text = self.ui.scene_embed(self.story, result.state, result).description
+            self.assertIn(expected, text.split("\n\n---\n\n")[1])
+
     async def test_italicise_handles_asterisks_and_line_breaks(self):
         text = 'The frame says *"Shelter for those who\nneed it."* Also: **wipe your feet**.\n\nSecond line.'
         self.assertEqual(self.ui.italicise(text),

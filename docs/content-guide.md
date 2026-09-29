@@ -132,6 +132,26 @@ library:
 In group play (later), a party with more than one role sees the shared `text`,
 so write `text` so it works for everyone.
 
+### Writing for several roles
+
+Each player is **"you"**, and the other friends are characters in the story. So in
+the Scholar's story Sable is a friend ("Sable narrows her eyes"), and in the
+Rogue's story Sable *is* "you" and the Scholar (placeholder name: Tamsin) is the
+friend. That means:
+
+- **Any scene that names the player's own character needs a `role_text` for that
+  role.** Otherwise the Rogue would read about "Sable" as if she were someone else.
+  The plain `text` is currently the Scholar's version.
+- **Any choice's `result_text` that does the same needs a `role_result_text`** (see
+  the choices table). It replaces `result_text` for that role.
+- **Choices about the player's own character are hidden from them with
+  `not_roles`** (see Requirements): "Let Sable pick the lock" is hidden from the
+  Rogue, who gets her own **[Rogue] Pick the lock**.
+- **Scenes only one role can visit** (the Scholar's archive, the Rogue's vault)
+  don't need versions for the others.
+- The validator checks, **for each playable role**, that no scene leaves that role
+  with nothing to click.
+
 ## Choices
 
 | Field | Required? | What it does |
@@ -147,8 +167,9 @@ so write `text` so it works for everyone.
 | `clears_flags` | no | Flags to forget |
 | `starts_quests` | no | Quests to start (they appear in `/quests`) |
 | `completes_quests` | no | Quests to mark completed |
+| `role_result_text` | no | A role's own version of `result_text`, e.g. `rogue: You pocket a second slice.` It replaces `result_text` for that role, and roles without one see `result_text` |
 | `requires` | no | Conditions for the choice to appear (see below) |
-| `show_locked` | no | `true` = show greyed-out when requirements aren't met, instead of hiding it |
+| `show_locked` | no | `true` = show greyed-out when requirements aren't met, instead of hiding it. A choice that belongs to another role is never shown, greyed out or not |
 
 Scenes with **up to 5 choices** show buttons. Scenes with **6–25 choices** show
 a dropdown menu instead.
@@ -168,6 +189,7 @@ requires:
   flags: [read_sign]        # ALL of these flags must be set
   not_flags: [door_opened]  # NONE of these flags may be set
   roles: [scholar]          # only for these roles (any one of them)
+  not_roles: [rogue]        # hidden from these roles
   quests_active: [find_the_innkeeper]  # these quests must be in progress
   quests_done: [restore_research]      # these quests must be completed
   not_quests_done: [restore_research]  # these quests must NOT be completed
@@ -175,7 +197,9 @@ requires:
 
 A choice with `roles` is shown with the role in front of its label, e.g.
 **[Scholar] Examine the runes**. The tag counts toward the 80-character limit,
-and the validator checks it.
+and the validator checks it. `not_roles` adds **no** tag: use `roles` for
+something a role *does*, and `not_roles` to hide a choice from a role it doesn't
+suit (such as one about a character that role plays).
 
 Common patterns:
 
@@ -186,7 +210,12 @@ Common patterns:
 - **One-time event:** `sets_flags: [bell_rung]` with
   `requires: {not_flags: [bell_rung]}`.
 - **Something only one role can do:** `requires: {roles: [rogue]}`. Make sure
-  every role still has at least one choice in the scene, or they'll get stuck.
+  every role still has at least one choice in the scene, or they'll get stuck
+  (the validator warns you).
+- **Two versions of one moment, one per role:** give each its own choice, using
+  `not_roles` on the one for the other role's character and `roles` (or nothing) on
+  the new one. See "Let Sable pick the lock" and "[Rogue] Pick the lock" in
+  `01_arrival.yaml`.
 - **A choice that finishes a quest, once:** `completes_quests: [x]` with
   `requires: {quests_active: [x]}`. It shows up while the quest is in
   progress, and disappears once it's done.

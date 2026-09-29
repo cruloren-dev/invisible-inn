@@ -77,8 +77,8 @@ def _parse_requirements(raw: Any, where: str, errors: list[str]) -> Requirements
     if not isinstance(raw, dict):
         errors.append(f"{where}.requires: expected a mapping")
         return Requirements()
-    allowed = {"items", "not_items", "flags", "not_flags", "roles", "quests_active", "quests_done",
-               "not_quests_done"}
+    allowed = {"items", "not_items", "flags", "not_flags", "roles", "not_roles", "quests_active",
+               "quests_done", "not_quests_done"}
     for key in raw:
         if key not in allowed:
             errors.append(f"{where}.requires: unknown key '{key}' (allowed: {', '.join(sorted(allowed))})")
@@ -88,6 +88,7 @@ def _parse_requirements(raw: Any, where: str, errors: list[str]) -> Requirements
         flags=_tuple_of_str(raw.get("flags"), f"{where}.requires.flags", errors),
         not_flags=_tuple_of_str(raw.get("not_flags"), f"{where}.requires.not_flags", errors),
         roles=_tuple_of_str(raw.get("roles"), f"{where}.requires.roles", errors),
+        not_roles=_tuple_of_str(raw.get("not_roles"), f"{where}.requires.not_roles", errors),
         quests_active=_tuple_of_str(raw.get("quests_active"), f"{where}.requires.quests_active", errors),
         quests_done=_tuple_of_str(raw.get("quests_done"), f"{where}.requires.quests_done", errors),
         not_quests_done=_tuple_of_str(raw.get("not_quests_done"), f"{where}.requires.not_quests_done", errors),
@@ -97,7 +98,7 @@ def _parse_requirements(raw: Any, where: str, errors: list[str]) -> Requirements
 CHOICE_KEYS = {
     "id", "label", "goto", "description", "requires", "show_locked",
     "gives", "takes", "sets_flags", "clears_flags", "result_text",
-    "starts_quests", "completes_quests",
+    "starts_quests", "completes_quests", "role_result_text",
 }
 SCENE_KEYS = {"title", "text", "choices", "ending", "role_text"}
 ROLE_KEYS = {"name", "description", "playable"}
@@ -193,6 +194,17 @@ def _parse_choice(raw: Any, where: str, errors: list[str]) -> Choice | None:
         errors.append(f"{where}: 'description' must be text of at most {MAX_OPTION_DESC} characters")
     if not ok:
         return None
+    role_result_text: dict[str, str] = {}
+    raw_role_result = raw.get("role_result_text")
+    if raw_role_result is not None:
+        if not isinstance(raw_role_result, dict):
+            errors.append(f"{where}: 'role_result_text' must be a mapping of role_id -> text")
+        else:
+            for role_id, text in raw_role_result.items():
+                if not isinstance(text, str) or not text.strip():
+                    errors.append(f"{where} › role_result_text › {role_id}: must be some text")
+                else:
+                    role_result_text[str(role_id)] = text
     return Choice(
         id=cid,
         label=label.strip(),
@@ -207,6 +219,7 @@ def _parse_choice(raw: Any, where: str, errors: list[str]) -> Choice | None:
         result_text=raw.get("result_text"),
         starts_quests=_tuple_of_str(raw.get("starts_quests"), f"{where}.starts_quests", errors),
         completes_quests=_tuple_of_str(raw.get("completes_quests"), f"{where}.completes_quests", errors),
+        role_result_text=role_result_text,
     )
 
 
@@ -356,9 +369,12 @@ def load_story(story_dir: Path, report: LoadReport | None = None) -> Story | Non
                               "defined in story.yaml")
         for c in scene.choices:
             where = f"{scene.source_file} › {scene.id} › {c.id}"
-            for role_id in c.requires.roles:
+            for role_id in (*c.requires.roles, *c.requires.not_roles):
                 if role_id not in roles:
                     errors.append(f"{where}: role '{role_id}' is not defined in story.yaml")
+            for role_id in c.role_result_text:
+                if role_id not in roles:
+                    errors.append(f"{where} › role_result_text: '{role_id}' is not a role defined in story.yaml")
             names = [roles[r].name for r in c.requires.roles if r in roles]
             full_label = role_label(c.label, names)
             if names and len(full_label) > MAX_LABEL:
@@ -410,18 +426,40 @@ _OPPOSITES = {"items": "not_items", "not_items": "items", "flags": "not_flags", 
               "quests_done": "not_quests_done", "not_quests_done": "quests_done"}
 
 
-def _single_condition(req: Requirements) -> tuple[str, str] | None:
-    """The one condition a choice has, e.g. ("items", "journal"), if it has exactly one."""
-    conditions = [(kind, value) for kind in (*_OPPOSITES, "roles", "quests_active")
-                  for value in getattr(req, kind)]
-    return conditions[0] if len(conditions) == 1 else None
+def _conditions(req: Requirements) -> list[tuple[str, str]]:
+    """Everything a choice needs besides a role, e.g. [("items", "journal")]."""
+    return [(kind, value) for kind in (*_OPPOSITES, "quests_active") for value in getattr(req, kind)]
 
 
 def _has_complementary_pair(choices) -> bool:
     """True if two choices cover both sides of one condition (e.g. has / doesn't have
     the journal), so one of them is always available."""
-    singles = {_single_condition(c.requires) for c in choices} - {None}
+    singles = set()
+    for c in choices:
+        conditions = _conditions(c.requires)
+        if len(conditions) == 1:
+            singles.add(conditions[0])
     return any((_OPPOSITES.get(kind), value) in singles for kind, value in singles)
+
+
+def _stuck_warnings(story: Story, scene) -> list[str]:
+    """Scenes where a player of some role could be left with nothing to click.
+
+    Checked once per playable role, looking only at the choices that role can see,
+    because role-only choices are how different roles get through the same scene.
+    """
+    if not scene.choices:
+        return []
+    warnings = []
+    where = f"{scene.source_file} › {scene.id}"
+    for role in [r for r in story.roles.values() if r.playable] or [None]:
+        available = [c for c in scene.choices if c.requires.allows_role(role.id if role else None)]
+        who = f" for the {role.name}" if role else ""
+        if not available:
+            warnings.append(f"{where}: has no choices{who}, so they would be stuck here")
+        elif all(_conditions(c.requires) for c in available) and not _has_complementary_pair(available):
+            warnings.append(f"{where}: every choice{who} has requirements — players could get stuck here")
+    return warnings
 
 
 def _reachability_warnings(story: Story) -> list[str]:
@@ -439,12 +477,7 @@ def _reachability_warnings(story: Story) -> list[str]:
     if not any(s.ending for s in story.scenes.values()):
         warnings.append(f"{story.id}: has no ending scene")
     for scene in story.scenes.values():
-        if scene.choices and all(not c.requires.is_empty() for c in scene.choices) \
-                and not _has_complementary_pair(scene.choices):
-            warnings.append(
-                f"{scene.source_file} › {scene.id}: every choice has requirements — "
-                "players could get stuck here"
-            )
+        warnings.extend(_stuck_warnings(story, scene))
     return warnings
 
 

@@ -11,15 +11,43 @@ guest_book_parlor:
 
     Sable is running her hands down the sides of the armchairs with the air
     of someone who absolutely isn't looking for loose change.
+  role_text:
+    rogue: |
+      The parlour is all overstuffed armchairs, doilies and portraits of guests
+      who have clearly had a wonderful time. One of the portraits winks at you,
+      which is professionally insulting.
+
+      On a stand by the window sits an enormous guest book, open to the latest
+      page. A pen hovers above it, waiting hopefully.
+
+      Tamsin is reading the portrait captions aloud to nobody. Fennick has found
+      a chair by the fire and is trying to look like someone who isn't thinking
+      about a kettle. You are running your hands down the sides of the armchairs
+      with the air of someone who absolutely isn't looking for loose change, or
+      a hidden latch, or a vault.
   choices:
     - id: open_guest_book
       label: Open the guest book
       goto: guest_book_entries
       starts_quests: [decipher_history]
+    - id: search_armchairs
+      label: Search the armchairs properly
+      goto: guest_book_parlor
+      requires:
+        roles: [rogue]
+        not_flags: [searched_armchairs]
+      sets_flags: [searched_armchairs]
+      result_text: |
+        Under the third cushion: four buttons, a dragon's scale, and a coin that
+        is bright and warm and definitely not from any currency you know.
+        "Lost something?" says Tamsin, without looking up. "Loose change," you
+        say, which is technically true. Beneath the coin, a scrap of paper in
+        loopy handwriting: "The vault is NOT in the parlour. Stop looking."
     - id: sable_armchairs
       label: Ask Sable what she's looking for
       goto: guest_book_parlor
       requires:
+        not_roles: [rogue]   # the Rogue *is* Sable: she has her own version above
         not_flags: [asked_sable]
       sets_flags: [asked_sable]
       starts_quests: [clear_the_air]   # Sable's (the Rogue's) secret quest; a Scholar never sees it
@@ -55,7 +83,45 @@ guest_book_entries:
     > *"Research going well. Please do not dust the archive."*
 
     You have never been here before. You're almost sure.
+  role_text:
+    rogue: |
+      You turn the pages. The reviews go back more than a century.
+
+      > *"Lovely stay. Only set fire to one thing. — Grimsworth (dragon)"*
+
+      > *"Room 7 is haunted by a very polite ghost. He folded my socks.
+      > Five stars."*
+
+      > *"Arrived in a storm with nothing but my regrets. Left with my regrets
+      > neatly organised. Would return."*
+
+      > *"The kettle has a lot of feelings."*
+
+      Every guest arrived in a storm. Every guest was running from something.
+      And every single one of them left a little lighter than they came.
+
+      Beside you, Tamsin has turned to a page near the back, gone very still,
+      and turned it firmly back again. You make a note of that. (You always make
+      a note of that.) The next page is the one that stops *you*. An entry in
+      a jaunty, confident hand:
+
+      > *"Came to rob the place. Stayed for the toast. Left the vault alone, and
+      > I've never once regretted it. — 'Fingers' Fitzgerald, retired"*
+
+      Underneath, in pencil, someone has added a second line, and underlined it.
   choices:
+    - id: look_closer_rogue
+      label: Look closer at the pencilled line
+      goto: guest_book_entries
+      requires:
+        roles: [rogue]
+        not_flags: [saw_vault_hint]
+      sets_flags: [saw_vault_hint]
+      result_text: |
+        The pencil is fresh, and the loopy handwriting is the same as on the
+        scroll. It says: "Library. The shelf where the treasure's supposed to
+        be. Push." Somebody wanted you to find this. Somebody also said nothing
+        at all about what to do once you had.
     - id: look_closer
       label: Look closer at the entry in your handwriting
       goto: guest_book_entries

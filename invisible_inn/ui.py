@@ -19,7 +19,8 @@ import discord
 
 from .content.models import Story
 from .engine import (
-    ChoiceResult, GameState, choice_label, options_for, quest_visible, scene_text, visible_quests,
+    ChoiceResult, GameState, choice_label, options_for, quest_visible, result_text, scene_text,
+    visible_quests,
 )
 
 if TYPE_CHECKING:
@@ -157,9 +158,10 @@ def build_choice_view(story: Story, state: GameState, session_id: int) -> discor
 def scene_embed(story: Story, state: GameState, result: ChoiceResult | None = None) -> discord.Embed:
     scene = story.scene(state.scene_id)
     text = reflow(scene_text(scene, state))
-    if result and result.chosen.result_text:
+    what_happened = result_text(result.chosen, state) if result else None
+    if what_happened:
         # What happened goes at the bottom, below a divider, so players don't have to scroll up.
-        outcome = f"{RESULT_DIVIDER}{italicise(result.chosen.result_text)}"
+        outcome = f"{RESULT_DIVIDER}{italicise(what_happened)}"
         room = EMBED_DESCRIPTION_LIMIT - len(outcome)
         if len(text) > room:
             text = text[: room - 1] + "…"

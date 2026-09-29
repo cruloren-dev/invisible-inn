@@ -17,6 +17,8 @@ foyer:
       goto: foyer
       gives: [brass_key]
       result_text: You lift the key from its hook. Nobody stops you.
+      role_result_text:            # what happens, in one role's own words (replaces result_text)
+        rogue: You lift the key from its hook before anyone notices the hook. Nobody stops you.
       requires:
         not_items: [brass_key]
     - id: green_door

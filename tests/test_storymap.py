@@ -24,6 +24,31 @@ class StoryMapTests(unittest.TestCase):
         # Reading the sign only disappears once it's been read: not a lock.
         self.assertIn('s_arrival -->|"Look closer at the blank sign"| s_sign', text)
 
+    def test_each_role_gets_only_the_scenes_and_choices_it_can_reach(self):
+        from invisible_inn.content.models import Choice, Requirements, Role, Scene, Story
+        scenes = {
+            "start": Scene("start", "Start", "t", (
+                Choice("shared", "Shared", "hall", requires=Requirements(not_roles=("scholar",))),
+                Choice("study", "Study", "archive", requires=Requirements(roles=("scholar",))),
+            )),
+            "hall": Scene("hall", "Hall", "t", ending=True),
+            "archive": Scene("archive", "Archive", "t", ending=True),
+        }
+        roles = {"scholar": Role("scholar", "Scholar"), "rogue": Role("rogue", "Rogue")}
+        story = Story("t", "T", "", "start", scenes, {}, roles=roles)
+        self.assertIn("s_archive", diagram(story, "scholar"))
+        self.assertNotIn("s_hall", diagram(story, "scholar"), "not_roles: hidden from the Scholar")
+        self.assertNotIn("s_archive", diagram(story, "rogue"))
+        self.assertIn("s_hall", diagram(story, "rogue"))
+        self.assertIn("s_archive", diagram(story), "no role: everything")
+
+    def test_map_has_a_diagram_per_playable_role(self):
+        text, _ = build(CONTENT_DIR)
+        self.assertIn("### Scholar's path", text)
+        self.assertIn("### Rogue's path", text)
+        self.assertNotIn("Mage's path", text, "the Mage isn't playable yet")
+        self.assertEqual(text.count("```mermaid"), 2)
+
     def test_plain_return_trips_have_no_label(self):
         self.assertIn("s_innkeeper --> s_foyer\n", diagram(self.story) + "\n")
 

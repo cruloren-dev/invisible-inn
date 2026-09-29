@@ -1,15 +1,19 @@
-# The Invisible Inn: v1 playable slice (Scholar path). See docs/content-guide.md.
+# The Invisible Inn: v1 playable slice (Scholar and Rogue paths). See docs/content-guide.md.
 #
 # DRAFT by Claude from docs/story-and-mechanics-design.md, for the project
 # manager to edit. PLACEHOLDERS to replace:
 #   - Sable ........... the Rogue's name (she/her)
+#   - Tamsin .......... the Scholar's name (she/her). Only used in the Rogue's
+#                       story so far, where the Scholar is a background character
 #   - Fennick ......... the Mage's name (he/him)
+#   - Big Marguerite .. the people Sable owes money to (her secret debt)
+#   - "Fingers" Fitzgerald, the retired thief who left a note in the guest book
 #   - Madame Thistlewick, the innkeeper who left
 #   - Little Mumbling . the town that forgot Tuesdays (the Scholar's past)
 #   - Memory ink ...... the Scholar's forbidden research
 #   - The kettle ...... Fennick's mentor (his secret)
 #   - Master Oolong ... the mentor's name, once he's un-kettled
-#   - The vault ....... Sable's secret, hinted at here
+#   - The vault ....... Sable's secret: a century of guests' tips, and the debt
 
 title: The Invisible Inn
 description: >-
@@ -27,7 +31,6 @@ roles:
   rogue:
     name: Rogue
     description: Can open any lock, except the one on her own past.
-    playable: false
   mage:
     name: Mage
     description: Half-finished spells and wholly unfinished business.

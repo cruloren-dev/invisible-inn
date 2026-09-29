@@ -99,11 +99,11 @@ isn't your adventure".
 ## 4. Story playtest (real story)
 
 Start the bot normally (without `CONTENT_DIR`), then play the real story as the
-Scholar. There's no fixed script. Check that:
+Scholar, and again as the Rogue (section 4b below). There's no fixed script. Check that:
 
 | # | Check | ✅ Expected |
 |---|---|---|
-| 1 | `/start` | Role card: **Scholar** is clickable. Rogue and Mage are grey "(coming soon)" |
+| 1 | `/start` | Role card: **Scholar** and **Rogue** are clickable. Mage is grey "(coming soon)" |
 | 1a | **[Scholar] Study the shimmering doorframe** | The storm scene again, then a `---` line and the doorframe text at the bottom, all in italics, with no stray `*` |
 | 1b | **Knock**, then **Step back outside into the storm** | Back at *A Very Rude Storm*, with the storm line at the bottom |
 | 2 | Play through to an ending | Every scene has a way forward. Locked choices (STAFF ONLY, the Restricted section, *Call everyone together*) unlock as described in their scenes |
@@ -112,6 +112,21 @@ Scholar. There's no fixed script. Check that:
 | 3b | Confess, then help with the kettle and pour out the ink | Master Oolong appears. *Memory Is A Fickle Thing* completes. `/quests` never shows *Clear the Air* or *Cure the Kettle* (they're Sable's and Fennick's) |
 | 4 | Replay with different choices | Three endings: confess (secret quest completes), keep the secret (quest stays in progress) and never take the journal |
 | 5 | Reading it as a player | Note anything that feels too long, too short, unclear or not funny, and the scene it's in |
+
+### 4b. Play it as the Rogue
+
+`/quit` any game in progress, `/start`, and choose **Rogue**.
+
+| # | Check | ✅ Expected |
+|---|---|---|
+| R1 | The whole story | You're "you", and Sable is never named in the narration. Tamsin (the Scholar) and Fennick are your friends. Footer: "Playing as Rogue" |
+| R2 | The first scene | **[Rogue] Pick the lock** appears, and "Let Sable pick the lock" and the Scholar's doorframe button do not |
+| R3 | Kitchen and dinner | **[Rogue] Pocket a few of the good spoons** in the kitchen. At dinner, **[Rogue] Slip out with the silver still up your sleeves** leads to a near-catch |
+| R4 | Guest book, then library | The pencilled line unlocks **[Rogue] Push the book that sticks out**, which was greyed out before. No Scholar button, greyed out or not, ever appears |
+| R5 | The vault door | *Clear the Air* appears in `/quests` (and only the Rogue can see it). The keyhole shows exactly the Rogue's debt |
+| R6 | Dinner: **[Rogue] Break open your bread roll** | ➕ Vault Key. After dinner, **[Rogue] Follow the sound of the lock** opens the vault: a century of guests' tips and a ledger with the debt |
+| R7 | The revelation | Fennick and Tamsin confess, then everyone turns to you. **Tell them about the debt** completes *Clear the Air* |
+| R8 | Endings | Confess (the inn settles), keep the secret (only if you've seen the vault) or "nothing to hide" (only if you haven't). After confessing, help with the kettle and give the tips back |
 
 ## If something goes wrong
 

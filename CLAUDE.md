@@ -115,6 +115,21 @@ about Discord. Keep it this way so game logic stays unit-testable.
 - **New content fields:** add them to the model, the loader's allowed-keys sets
   (`CHOICE_KEYS` / `SCENE_KEYS`) and validation, `docs/content-guide.md`, and tests.
   The loader rejects unknown keys on purpose, to catch writer typos.
+- **Writing for several roles.** The player is "you", and the other friends are
+  characters. In the Rogue's story Sable is "you" and the Scholar (placeholder
+  name Tamsin) is a friend, so scenes and results that name the player's own
+  character need a `role_text` / `role_result_text` for that role. Use `roles` for
+  something a role *does* (the button gets a "[Rogue]" tag), and `not_roles` to hide
+  a choice about the character a role *is* (no tag). Never add `roles` to an
+  existing choice just to route it: that changes the label other players see.
+- **`show_locked` never shows another role's choice** (`engine.role_allowed`):
+  greyed-out buttons tease things the player can unlock, and a role can't be
+  unlocked. Don't undo this.
+- **Every playable role must always have something to click.** The validator
+  checks each role separately (`_stuck_warnings`) and `tests/test_playthroughs.py`
+  plays the stories at random as every role. When you change a story, also try
+  the exhaustive check (see the Rogue PR: every combination of choices, about 90
+  seconds per role) if you restructure scenes.
 - **Sample vs real content:** tests use the sample story in
   `tests/fixtures/stories/invisible_inn/` (`tests/helpers.CONTENT_DIR`), which
   shows every feature. Tests depend on its ids (`arrival`, `foyer`, `take_key`,
@@ -154,20 +169,30 @@ and labelled choices, and `role_text`. **Quests** (PR #7): `quests.yaml`,
 playable slice is drafted in `content/stories/invisible_inn/` (15 scenes, 3
 endings, 3 quests). Placeholder names are listed at the top of its `story.yaml`.
 
-**Next: v1 (solo), roughly in order:**
-1. The owner edits the Scholar slice text and replaces the placeholders. It's
-   ~15–20 minutes of play against a 20–30 minute target; the natural place to add
-   more is Milestones 6–7 (the dining-room conflict, the inn responding).
-2. Finish the live smoke test (`docs/smoke-test.md` sections 3 and 4).
-
 **Railway** (PR #11): deployed and live. **Writers' toolkit** (PR #12): the story
 map and the editing guide. **Chapter One continued** (PR #14): Milestones 6–7
 (`06_dinner.yaml`), the writer's secret quests wired in (2 more Scholar quests,
 plus Sable's and Fennick's, which play out invisibly in the Scholar's story),
 and Claude's proposed answers to the open story questions in
-`docs/editing-guide.md`. Items 1, 6 (the Rogue and Mage routes) and 8 there are
-still open for writers. Secret quests of other roles are never announced
+`docs/editing-guide.md`. Secret quests of other roles are never announced
 (`engine.quest_visible`).
+
+**The Rogue's chapter** (PR #15): the Rogue is playable. Sable owes a debt and
+follows a rumour to the inn's vault (`04b_rogue_vault.yaml`; secret quest *Clear the
+Air*), with her own versions of the shared scenes. It added `not_roles`,
+`role_result_text`, per-role stuck checks, per-role diagrams in the story map, the
+`show_locked` fix above, and `tests/test_playthroughs.py`. The Scholar's story is
+unchanged (verified by comparing everything the Scholar sees before and after).
+
+**Next: v1 (solo), roughly in order:**
+1. The owner edits both stories' text and replaces the placeholder names. Still
+   open in `docs/editing-guide.md`: the placeholders (item 1), the Mage's route
+   (item 6) and tone and pacing (item 8).
+2. The **Mage's** chapter, following the Rogue's pattern: a secret room, a near-catch
+   at dinner, `role_text` for the shared scenes, and the kettle quest (*Cure the
+   Kettle*) as his own. Set `playable: false` off in `story.yaml` only when it's
+   finished.
+3. Finish the live smoke test (`docs/smoke-test.md` sections 3 and 4, 4b).
 
 **After v1:** multiplayer (v1.1, see the design doc's v1 scope box and the open
 questions in `docs/architecture.md`). A separate dev bot for local testing is

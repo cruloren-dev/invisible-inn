@@ -8,6 +8,18 @@ guest_book:
   name: Guest Book
   description: A century of reviews, most of them glowing, one of them literally.
 
+vault_key:
+  name: Vault Key
+  description: Small, brass and delivered inside a bread roll. It hums whenever you walk past something locked.
+
+pocketed_silver:
+  name: Pocketed Silverware
+  description: Three spoons, a fork and, inexplicably, the sugar tongs. You don't remember taking most of it. (You took all of it.)
+
+guest_tips:
+  name: Bag of Guests' Tips
+  description: A century of "thank you, lovely stay" in coins, gems and one very old tooth. It's warm, and it doesn't feel like yours.
+
 memory_ink:
   name: Vial of Memory Ink
   description: One drop, and something is forgotten. Iridescent, like oil on water. It sloshes guiltily when you walk.

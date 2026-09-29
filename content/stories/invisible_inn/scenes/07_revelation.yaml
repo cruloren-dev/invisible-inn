@@ -2,9 +2,16 @@
 # In the full game, this leads on to Milestones 9-10. For the slice, it ends
 # Chapter One.
 #
-# Sable's quest (clear_the_air) completes whichever way the Scholar answers,
-# because Sable confesses here. Fennick's (cure_the_kettle) can only complete
-# after the Scholar confesses too: the inn "settles" once everyone's honest.
+# Each playable role has its own version of this scene. The player's role is the
+# last of the three friends to be asked. The other two confess as background
+# characters, so the base text (the Scholar's version) has Sable and Fennick
+# confessing, and the Rogue's version has Fennick and Tamsin.
+#
+# In the Scholar's story, Sable's quest (clear_the_air) completes whichever way the
+# Scholar answers, because Sable confesses here. In the Rogue's story it completes
+# only if the Rogue confesses herself (rogue_confess). Fennick's (cure_the_kettle)
+# can only complete after the player confesses too: the inn "settles" once
+# everyone's honest.
 
 grand_revelation:
   title: The Grand Revelation (Part One)
@@ -32,11 +39,43 @@ grand_revelation:
     And then they both turn to look at you.
 
     The fire question mark flickers expectantly.
+  role_text:
+    rogue: |
+      The three of you sit around the innkeeper's desk. The door is locked.
+      The fire in the grate has shaped itself into what looks suspiciously
+      like a question mark.
+
+      Fennick goes first, because the kettle has started whistling in the
+      kitchen, loudly and pointedly, and he can't stand it. "The kettle," he
+      says. "The kettle in the kitchen is my old mentor. I was trying a
+      transformation spell. He wanted to see it. He *insisted*. And I... never
+      finished the reversal. I've been trying all night. It won't take."
+
+      "You turned your teacher into a *kettle*?"
+
+      "He's a very good kettle!"
+
+      Tamsin goes second. She lays a blue leather journal on the desk and takes
+      a breath the size of a library. "Memory ink," she says. "I invented it.
+      It worked beautifully, right up until the demonstration in Little
+      Mumbling, when the whole town forgot Tuesdays. For a year. The Guild
+      banned it, and I told you both I'd destroyed it. I hadn't. I came here
+      twelve years ago, wrote it all down again, and used a drop on myself so
+      I'd stop thinking about it."
+
+      "You forgot," says Fennick slowly, "on *purpose*."
+
+      "It seemed like a good idea at the time."
+
+      And then they both turn to look at you.
+
+      The fire question mark flickers expectantly.
   choices:
     - id: confess
       label: Tell them about the journal
       goto: confession_aftermath
       requires:
+        not_roles: [rogue]   # the Rogue has her own version below
         items: [forbidden_journal]
       completes_quests: [restore_research, clear_the_air]
       sets_flags: [scholar_truth_accepted]
@@ -44,14 +83,35 @@ grand_revelation:
       label: Say you've got nothing to confess (you do)
       goto: ending_secret
       requires:
+        not_roles: [rogue]
         items: [forbidden_journal]
       completes_quests: [clear_the_air]
     - id: nothing_to_hide
       label: Say you've got nothing to hide
       goto: ending_unaware
       requires:
+        not_roles: [rogue]
         not_items: [forbidden_journal]
       completes_quests: [clear_the_air]
+    - id: rogue_confess
+      label: Tell them about the debt
+      goto: confession_aftermath
+      requires:
+        not_roles: [scholar]   # the Scholar has her own version above
+      completes_quests: [clear_the_air]
+      sets_flags: [rogue_truth_accepted]
+    - id: rogue_keep_secret
+      label: Say you've got nothing to confess (you do)
+      goto: ending_secret
+      requires:
+        not_roles: [scholar]
+        flags: [visited_vault]
+    - id: rogue_nothing_to_hide
+      label: Say you've got nothing to hide
+      goto: ending_unaware
+      requires:
+        not_roles: [scholar]
+        not_flags: [visited_vault]
 
 confession_aftermath:
   title: Put Down
@@ -73,6 +133,29 @@ confession_aftermath:
 
     Fennick sits up very straight. "Did you feel that? The magic. It's
     *moving* again."
+  role_text:
+    rogue: |
+      You put your hands flat on the desk and tell them. All of it: the money,
+      the people you owe it to, the rumour about the vault, the six weeks of
+      following it here, and the fact that you decided three towns ago not to
+      tell either of them, because you're the one who always has a plan.
+
+      Nobody laughs. Tamsin takes a napkin from somewhere and a pencil from
+      somewhere else, and starts writing down numbers. "How much?" she says. You
+      tell her. She does some sums, looks up, and to your enormous surprise,
+      she smiles. "It's a lot," she says. "But it's a *number*. Numbers are
+      survivable."
+
+      "I could turn things into gold," says Fennick hopefully. "It's gone by
+      noon." "That's a loan with extra steps," says Tamsin. "No." "Just
+      checking."
+
+      The study door unlocks with a soft click. The fire stops being a question
+      mark and goes back to being a fire. All around you, the inn lets out a
+      long, creaking breath, like a house settling at the end of a long day.
+
+      Fennick sits up very straight. "Did you feel that? The magic. It's
+      *moving* again."
   choices:
     - id: cure_kettle_together
       label: Help Fennick with the kettle, all three of you
@@ -87,6 +170,38 @@ confession_aftermath:
         with a very familiar moustache. "Eleven YEARS," says Master Oolong.
         "Is there a biscuit in this establishment, or must I do everything
         myself?" Fennick bursts into tears. So, a little, do you.
+      role_result_text:
+        rogue: |
+          Tamsin checks the equations, you hold the kettle steady, and Fennick
+          says the words. There's a puff of steam, a smell of bergamot, and then
+          a short, round old man in an apron is sitting on the kitchen table,
+          with a very familiar moustache. "Eleven YEARS," says Master Oolong.
+          "Is there a biscuit in this establishment, or must I do everything
+          myself?" Fennick bursts into tears. So, a little, do you.
+    - id: return_tips
+      label: Give the vault's tips back
+      goto: confession_aftermath
+      requires:
+        roles: [rogue]
+        items: [guest_tips]
+      takes: [guest_tips]
+      sets_flags: [returned_tips]
+      result_text: |
+        You set the bag on the desk. The desk swallows it politely, with a small
+        burp. Somewhere deep in the walls, a vault door closes with the
+        satisfied thud of a very good dinner. Your pockets feel lighter, and so,
+        strangely, do you.
+    - id: keep_tips
+      label: Keep the tips, just for now
+      goto: confession_aftermath
+      requires:
+        roles: [rogue]
+        items: [guest_tips]
+        not_flags: [kept_tips]
+      sets_flags: [kept_tips]
+      result_text: |
+        "Just until I've sorted things out," you say. Nobody argues. The inn says
+        nothing, very pointedly.
     - id: pour_out_ink
       label: Pour the memory ink into the fire
       goto: confession_aftermath
@@ -129,6 +244,20 @@ ending_confess:
     The inn feels warmer. Lighter. Like it's decided something about you.
 
     **End of Chapter One.** *To be continued…*
+  role_text:
+    rogue: |
+      Later, the three of you sit by the fire in the foyer, in slippers that
+      fit perfectly, eating toast that butters itself. The storm has finally
+      run out of opinions. For the first time in years, nobody is waiting for
+      somebody else to go first.
+
+      Upstairs, a door you haven't opened yet quietly unlocks itself. Somewhere
+      down a corridor that wasn't there this morning, an iron door creaks once,
+      like a wink.
+
+      The inn feels warmer. Lighter. Like it's decided something about you.
+
+      **End of Chapter One.** *To be continued…*
 
 ending_secret:
   title: Not Yet
@@ -148,6 +277,23 @@ ending_secret:
     seems, is prepared to wait.
 
     **End of Chapter One.** *To be continued…*
+  role_text:
+    rogue: |
+      "Nothing," you say. "I'm just here for the toast."
+
+      Tamsin narrows her eyes. Fennick nods too quickly, the way people do
+      when they've decided not to push. Everything you're not saying sits in
+      your pockets like a hot coal.
+
+      The study door stays locked for a long, awkward minute. Then, with a
+      reluctant click, it opens. On the other side, the corridor has quietly
+      rearranged itself so that every door now leads back to a round iron one,
+      patient as a debt.
+
+      In the kitchen, the kettle whistles one long, sad note. The inn, it
+      seems, is prepared to wait.
+
+      **End of Chapter One.** *To be continued…*
 
 ending_unaware:
   title: Nothing to Hide
@@ -164,3 +310,18 @@ ending_unaware:
     humming a little louder than before.
 
     **End of Chapter One.** *To be continued…*
+  role_text:
+    rogue: |
+      "Nothing to hide," you say, with the smile you use on magistrates. It has
+      never once worked on Tamsin.
+
+      She doesn't push. Neither does Fennick. But as you say it, something warm
+      and heavy shifts in the walls, like a lock turning over in its sleep, and
+      a line from the guest book slips into your mind: *"Came to rob the place.
+      Stayed for the toast."* You couldn't say why.
+
+      The study door unlocks. Tamsin and Fennick go to find the toast. You stay
+      behind a moment longer. On the desk, a sticky note you never read has
+      quietly rewritten itself. It says: *Whenever you're ready.*
+
+      **End of Chapter One.** *To be continued…*

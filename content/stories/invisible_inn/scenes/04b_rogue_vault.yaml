@@ -1,0 +1,107 @@
+# Milestone 5 (the Rogue's secret): the vault. DRAFT: edit freely.
+# The Rogue's counterpart of the Scholar's archive (see 04_library.yaml). Only the
+# Rogue can reach these two scenes.
+#
+#   rogue_vault ... the vault door, found behind a library shelf. It can't be opened yet.
+#   vault_open .... inside the vault. The key comes from the bread roll at dinner
+#                   (06_dinner.yaml), and the door opens after dinner, when the inn
+#                   rearranges itself.
+#
+# The Rogue's secret quest, "Clear the Air" (clear_the_air), starts when she finds
+# the door and completes when she tells her friends the truth (07_revelation.yaml).
+
+rogue_vault:
+  title: The Vault Door
+  text: |
+    The shelf swings inward on a hinge nobody has oiled, and behind it is a
+    short stone passage that smells of old coins and cold candle wax. At the
+    end stands a round iron door, taller than you, with more locks than a door
+    has any business having. Above it, in brass letters: **THE VAULT**.
+    Beneath, on a small enamel plaque: *(Not a metaphor.)*
+
+    You've stood in front of a lot of locks. You know, the way you know your
+    own name, that this is not one you can pick. It isn't that it's
+    complicated. It's that it's *listening*.
+
+    A keyhole the size of a thumbnail sits at eye level. Through it,
+    something glitters.
+
+    Out in the library you can hear your friends, and you feel, as you always
+    do, the weight of everything you haven't told them.
+  choices:
+    - id: try_picks
+      label: Try your picks anyway
+      goto: rogue_vault
+      requires:
+        not_flags: [tried_picks]
+      sets_flags: [tried_picks]
+      result_text: |
+        The picks go in fine. Then the lock politely spits them all back out, in
+        a neat row, handles first. It's the most courteous rejection you've ever
+        had.
+    - id: peek_keyhole
+      label: Peek through the keyhole
+      goto: rogue_vault
+      requires:
+        not_flags: [peeked_keyhole]
+      sets_flags: [peeked_keyhole]
+      result_text: |
+        Gold. Heaps of it: coins, gems, a dragon's scale the size of a dinner
+        plate. You count, because you can't not. Then you stop counting, because
+        the total is exactly what you owe Big Marguerite, to the penny. The inn
+        knows.
+    - id: back_to_library
+      label: Back to the library
+      goto: library_chaos
+      result_text: The shelf swings shut behind you with a tiny, sympathetic click.
+
+vault_open:
+  title: Inside the Vault
+  text: |
+    The corridor ends at an iron door you'd know anywhere: round, taller than
+    you, and listening. The keyhole is waiting. Your key fits so smoothly it
+    feels like a handshake.
+
+    The door swings open without a sound.
+
+    Inside is a great round room, and every surface is treasure. Coins in
+    drifts. Gems in bowls. A crown that has clearly never been worn. On every
+    heap sits a small hand-lettered card:
+
+    > *THANK YOU, LOVELY STAY.*
+
+    It isn't loot. It's tips. A century of guests, each leaving a little
+    something behind for the inn that put them back together.
+
+    In the middle of the room, on a stool, lies a ledger, open to a single line
+    in loopy handwriting:
+
+    > *Sable: 41,873 gold and 6 silver. Yours, if you want it. (It's the asking
+    > that counts.)*
+
+    That's your debt. To the silver.
+  choices:
+    - id: count_it
+      label: Count it, to be sure
+      goto: vault_open
+      requires:
+        not_flags: [counted_tips]
+      sets_flags: [counted_tips]
+      result_text: |
+        You count it twice. It's your debt exactly, which is also the only sum
+        in the world that would make Big Marguerite go away. Somebody wrote it
+        down for you in a pretty hand. Somebody wanted you to find this.
+    - id: fill_pockets
+      label: Fill your pockets
+      goto: vault_open
+      requires:
+        not_items: [guest_tips]
+      gives: [guest_tips]
+      result_text: |
+        You fill your pockets, your boots and, after a moment's thought, your
+        hat. The coins are warm. The inn says nothing, which is somehow the
+        loudest thing it has ever said.
+    - id: leave_vault
+      label: Close the door and walk away
+      goto: inn_responds
+      result_text: The door swings shut with a soft, considerate thud, and the corridor rearranges itself around you.

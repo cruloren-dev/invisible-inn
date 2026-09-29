@@ -157,6 +157,52 @@ class RoleTests(unittest.TestCase):
         both = engine.with_roles(self.sign, ["scholar", "rogue"])
         self.assertEqual(engine.scene_text(scene, both), scene.text, "a mixed party gets the shared text")
 
+    def test_not_roles_hides_a_choice_from_that_role_without_tagging_it(self):
+        arrival = engine.GameState("arrival")
+        def ids_for(roles):
+            state = engine.with_roles(arrival, roles)
+            return [o.choice.id for o in engine.options_for(self.story, state)]
+        self.assertIn("leave", ids_for(["scholar"]))
+        self.assertIn("leave", ids_for([]))
+        self.assertNotIn("leave", ids_for(["mage"]))
+        with self.assertRaises(engine.ChoiceUnavailable):
+            engine.choose(self.story, engine.with_roles(arrival, ["mage"]), "leave")
+        leave = self.story.scene("arrival").choice("leave")
+        self.assertEqual(engine.choice_label(self.story, leave), "Walk away", "not_roles adds no tag")
+
+    def test_greyed_out_choices_are_never_another_roles(self):
+        # show_locked teases something the player can unlock. A choice for another role
+        # can never be unlocked by this player, so it isn't shown at all.
+        from invisible_inn.content.models import Choice, Requirements, Scene, Story
+        scholars = Choice("read", "Read", "s", requires=Requirements(roles=("scholar",), flags=("saw_note",)),
+                          show_locked=True)
+        rogues = Choice("pick", "Pick", "s", requires=Requirements(roles=("rogue",), flags=("saw_note",)),
+                        show_locked=True)
+        not_rogue = Choice("wave", "Wave", "s", requires=Requirements(not_roles=("rogue",), flags=("saw_note",)),
+                           show_locked=True)
+        story = Story("t", "T", "", "s", {"s": Scene("s", "S", "t", (scholars, rogues, not_rogue))}, {})
+
+        def shown(roles, flags=()):
+            state = engine.GameState("s", roles=list(roles), flags=set(flags))
+            return [(o.choice.id, o.enabled) for o in engine.options_for(story, state)]
+
+        self.assertEqual(shown(["scholar"]), [("read", False), ("wave", False)],
+                         "greyed out for the Scholar's own choice, but never the Rogue's")
+        self.assertEqual(shown(["rogue"]), [("pick", False)])
+        self.assertEqual(shown(["scholar"], ["saw_note"]), [("read", True), ("wave", True)])
+        self.assertEqual(shown(["rogue"], ["saw_note"]), [("pick", True)])
+
+    def test_role_result_text_replaces_shared_result_text(self):
+        choice = self.story.scene("foyer").choice("take_key")
+        base = "You lift the key from its hook. Nobody stops you."
+        self.assertEqual(engine.result_text(choice, engine.GameState("foyer")), base)
+        scholar = engine.GameState("foyer", roles=["scholar"])
+        self.assertEqual(engine.result_text(choice, scholar), base, "no version for this role")
+        rogue = engine.GameState("foyer", roles=["rogue"])
+        self.assertIn("before anyone notices the hook", engine.result_text(choice, rogue))
+        both = engine.GameState("foyer", roles=["rogue", "scholar"])
+        self.assertEqual(engine.result_text(choice, both), base, "a mixed party gets the shared text")
+
     def test_role_choice_label_is_tagged(self):
         choice = self.story.scene("sign").choice("copy_cipher")
         self.assertEqual(engine.choice_label(self.story, choice), "[Scholar] Copy the cipher before it fades")
